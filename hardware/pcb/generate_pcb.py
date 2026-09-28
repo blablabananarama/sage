@@ -39,7 +39,7 @@ DIODE_DX, DIODE_DY = -PITCH_X / 2, -1.0  # SOD-523 in the 0.95 mm gap left of ea
 NANO_X, NANO_Y = 121.65, 91.85 - 33.3 / 2  # nice!nano centre, rotated 180: USB-C faces the front edge
 NANO_ROT = 180
 USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle (front edge)
-BAT_CUT = (111.15, 6.45, 132.15, 48.45)  # x0, y0, x1, y1 - closed LiPo window (4 x 20 x 40 cell)
+BAT_CUT = (111.15, 6.45, 132.15, 48.45)  # x0, y0, x1, y1 - closed LiPo window (3.0 x 20 x 40 cell)
 BAT_PADS = (124.5, 51.0)
 RESET = (116.5, 53.0)                    # reachable through a pin-hole in the shell roof
 POWER_SW = (BOARD_W - 2.3, 53.9)         # actuator pokes through the inner side wall
@@ -252,7 +252,7 @@ class Builder:
         self.text("BAYLEAF", 56, 40, 4.0, pcbnew.B_SilkS)
         self.text(f"{self.side} half - rev 1", 56, 47, 1.5, pcbnew.B_SilkS)
         self.text("RST", RESET[0] - 4.6, RESET[1] + 3.6, 0.8)
-        self.text("LiPo 4.0x20x40", 121.65, 27.0, 0.9, pcbnew.Cmts_User)
+        self.text("LiPo 3.0x20x40", 121.65, 27.0, 0.9, pcbnew.Cmts_User)
         for i, (x, y, d) in enumerate(BOSSES):
             h = self.place(f"{KICAD_FP}/MountingHole.pretty", "MountingHole_2.2mm_M2", f"H{i + 1}", x, y,
                            value=f"boss {d:g}")

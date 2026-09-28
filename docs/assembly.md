@@ -7,13 +7,14 @@ Do these steps once per half. They're written for the left half; the right half 
 ## Stack-up
 
 ```
-6.2 mm ┬ top of shell at the back and over the controller bay (roof 0.8 mm)
-3.8 mm ┼ top of shell along the front edge of the key area (the frame curves down)
-       │  PG1316S + keycap stick up through the 103 × 86 mm window; nice!nano (3.2 mm) and the
-       │  4 mm LiPo sit under the roof of the controller bay
-1.6 mm ┼ PCB top: the shell's bosses press down here
+5.0 mm ┬ top of the lid over the controller bay: the tallest point
+4.2 mm ┼ lid underside (0.8 mm lid on 0.1 mm tape)
+~4.4   │ keycap tops, about 0.6 mm proud of the 3.8 mm frame
+4.1 mm ┼ shell walls around the bay (the frame curves up to this from 3.8 mm)
+~4.0   │ top of the nice!nano; 3.0 mm LiPo on the bottom plate beside it
+1.6 mm ┼ PCB top: the shell's posts press down here
 0.8 mm ┼ PCB (0.8 mm FR4) on 0.05 mm Kapton film
-0.0 mm ┴ bottom plate (0.8 mm aluminium), flush in the shell's rabbet; M2 screws come up through it
+0.0 mm ┴ bottom plate (0.8 mm aluminium), flush in the shell's rabbet; 7 × M2×3 screws come up through it
 ```
 
 ## 1. Diodes (skip if JLC assembled them)
@@ -49,26 +50,27 @@ Solder SW31 (tact switch, next to the controller) and SW32 (slide switch on the 
 ## 6. Battery
 
 1. Slide the power switch to OFF.
-2. The cell drops into the window in the PCB behind the controller (toward the back of the bay). It rests on the bottom plate.
+2. The 3.0 mm cell drops into the window in the PCB behind the controller (toward the back of the bay). It rests on the bottom plate.
 3. Solder the cell's red lead to **+** and black to **−** on the BT1 pads. Keep the leads short.
 4. Put Kapton on the cell. It's held by a small piece of thin double-sided tape once the plate is on.
 
 ## 7. Close the case
 
 1. Lay the shell upside down on a soft cloth.
-2. Drop the PCB in, keys down, so the switches go into the key window, USB-C into the front slot, and the power-switch lever into the side slot. The 7 holes in the PCB line up with the shell's bosses.
+2. Drop the PCB in, keys down, so the switches go into the key window, USB-C into the front slot of the bay, and the power-switch lever into the side slot. The 7 holes in the PCB line up with the shell's posts.
 3. Put the 0.05 mm Kapton film on the back of the PCB. Stick the battery to the bottom plate where it will meet the cell, then drop the plate into the rabbet.
-4. Screw in 4 × M2×3 (the two key-frame corners and the two at the back of the controller bay) and 3 × M2×4 (the middle of the divider and the two beside the USB port). Snug, not tight: the bosses clamp the PCB.
-5. Snap on the 30 keycaps and stick 4 bumpons under each half.
+4. Screw in the 7 × M2×3 thin-head screws. Snug, not tight: the posts clamp the PCB.
+5. Turn it over. Put 0.1 mm double-sided tape on the tops of the bay walls, the divider and the four posts in the bay. Press the lid on, flush with the outer edges.
+6. Snap on the 30 keycaps and stick 4 bumpons under each half.
 
 ## 8. Pair
 
 1. Switch both halves ON. They pair with each other automatically; the left half is the BLE "central".
-2. On the computer, pair with **Bayleaf**. The reset button is reachable with a paper clip through the pin-hole in the controller-bay roof. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
+2. On the computer, pair with **Bayleaf**. The reset button is reachable with a paper clip through the pin-hole in the lid. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
 
 ## Troubleshooting
 
 * **A key doesn't register:** usually a switch contact pad that didn't wet. Reflow that switch, or touch up its pads from the side with the iron.
 * **A whole row or column is dead:** check the flush joints on the nice!nano pins.
 * **The halves don't connect:** flash `settings_reset` to both halves, then the real firmware again.
-* **Short range in the aluminium case:** the controller now sits in a closed aluminium bay, so the radio mostly escapes through the key window and the USB slot. The firmware already sets TX power to +8 dBm. If range is still poor, anodised-aluminium builds sometimes need the shell roof over the controller swapped for a printed one (the STEP prints fine), or a plastic plate.
+* **Short range in the aluminium case:** the controller sits under an aluminium lid, so the radio mostly escapes through the key window and the USB slot. The firmware already sets TX power to +8 dBm. If range is still poor, swap the lid for a printed or acrylic one (same STEP file); it's only held by tape.

@@ -33,19 +33,19 @@ The switches (PG1316S) and the nice!nano are not placed by JLC. You solder them 
 * **60 × Kailh PG1316S** plus a few spares. Pick the force you like; the lighter 25–35 gf versions are quieter. Sold as 5- or 10-packs by beekeeb, keycapsss, holykeebs and modulo.industries.
 * **60 × PG1316S 1U keycaps** (16 × 16 mm) from the same shops.
 * **2 × nice!nano v2**. Don't buy the "low-profile headers/sockets"; they aren't used.
-* **2 × LiPo 402040** (4.0 × 20 × 40 mm, about 250–300 mAh) with a protection PCB and short leads. The controller bay has room for a cell up to 4.2 × 21 × 42 mm.
+* **2 × LiPo 302040** (3.0 × 20 × 40 mm, about 180–200 mAh) with a protection PCB and short leads. The bay under the lid has room for a cell up to 3.2 × 21 × 42 mm.
 
-## 3. Case (top shell + bottom plate)
+## 3. Case (top shell + lid + bottom plate)
 
-The case follows the original's MK5 drawing: a machined top shell with the key window and a covered controller bay, plus a flat bottom plate screwed into it. See [case-drawing.md](case-drawing.md) for the dimensions, the thread callouts, and which boss positions I changed.
+The case follows the original's MK5 drawing for the plan view and the build photos for the heights: 5.0 mm at the tallest point (the lid), and a 3.8 mm frame around the keys. See [case-drawing.md](case-drawing.md) for all dimensions and what I changed.
 
-* Upload `hardware/case/out/bayleaf-shell-{left,right}.step` and `bayleaf-plate-{left,right}.step` to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each file.
-  * Material: 6061-T6. Finish: bead blast + anodise (any colour).
-  * Threads: 7 × M2×0.4 blind tapped holes per shell. Four are 2 mm deep and three are 3 mm deep (table in case-drawing.md). Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
-  * The shell has a 0.8 mm roof and frame and needs machining from both sides. Expect roughly $80–130 per shell and $15–30 per plate.
-* **Printed (budget) option:** the same STEP files can be printed in MJF PA12 or SLS nylon for about $15–25 per half. Use self-tapping M2 screws or heat-set inserts instead of tapped threads.
-* **Screws:** 8 × M2×3 and 6 × M2×4 with a thin (≤ 0.5 mm) wafer head, e.g. a laptop-screw assortment.
+* Upload `hardware/case/out/bayleaf-shell-{left,right}.step`, `bayleaf-lid-{left,right}.step` and `bayleaf-plate-{left,right}.step` to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each.
+  * Material: 6061-T6. Finish: bead blast + anodise. For the original's look, anodise the shell and plate silver/clear and the lids in a contrast colour (it's blue in the photos).
+  * Threads: 7 × M2×0.4, blind, 2 mm deep per shell, cut up from the bottom into the posts. Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
+  * Rough cost: shell $70–110, lid $10–20, plate $15–30, per half.
+* **Printed (budget) option:** the same STEP files print in MJF PA12 or SLS nylon for about $15–25 per half. Use self-tapping M2 screws.
+* **Screws:** 14 × M2×3 with a thin (≤ 0.5 mm) wafer head, e.g. a laptop-screw assortment.
 
 ## 4. Consumables
 
-Thin double-sided tape (for the battery), Kapton tape plus a sheet of 0.05 mm Kapton film, 8 small silicone bumpons, and low-temperature solder paste (Sn42Bi58, 138 °C). The low-temperature paste keeps the switch housings well below the datasheet's 260 °C limit.
+0.1 mm double-sided tape for the lids (3M 467MP / Nitto 5000NS), thin foam tape for the battery, Kapton tape plus a sheet of 0.05 mm Kapton film, 8 small silicone bumpons, and low-temperature solder paste (Sn42Bi58, 138 °C). The low-temperature paste keeps the switch housings well below the datasheet's 260 °C limit.

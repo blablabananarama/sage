@@ -4,19 +4,19 @@ Item,Qty (both halves),Designators (per half),Part,Specification / part number,W
 3,60,-,Keycap,Kailh PG1316S 1U keycap (16 x 16 mm),"keycapsss, holykeebs, modulo.industries",0.45,27.00,The original build used custom MJF-printed caps; stock Kailh caps fit the same switch
 4,60 (+10 spare),D1-D30,Diode,"1N4148WT, SOD-523 (0.8 mm wide body; fits the 0.95 mm gap between keycaps)",LCSC / JLCPCB assembly,0.02,1.40,"Search ""1N4148WT"" in the LCSC/JLC catalogue; any SOD-523 small-signal diode works"
 5,2,U1,Controller,"nice!nano v2 (nRF52840, mid-mount USB-C, 3.2 mm thick)","nicekeyboards.com, typeractive.xyz, boardsource, mechboards",25.00,50.00,"Soldered flush to the PCB, no headers/sockets"
-6,2,BT1,Battery,"3.7 V LiPo pouch cell 402040 (4.0 x 20 x 40 mm, ~250-300 mAh) with protection circuit",AliExpress / Adafruit-style LiPo shops,5.00,10.00,Any cell <= 4.2 x 21 x 42 mm fits the window in the PCB under the controller-bay roof
+6,2,BT1,Battery,"3.7 V LiPo pouch cell 302040 (3.0 x 20 x 40 mm, ~180-200 mAh) with protection circuit",AliExpress / Adafruit-style LiPo shops,4.00,8.00,"Sits on the bottom plate in the PCB window; the bay under the lid is 3.4 mm tall, so max 3.2 mm thick"
 7,2 (+3 spare),SW32,Power switch,"MSK12C02 SPDT side-actuated SMD slide switch (LCSC C431540), PCM12 footprint",LCSC / JLCPCB assembly,0.20,1.00,
 8,2,SW31,Reset button,XKB TS-1187A-B-A-B 5.1 x 5.1 x 1.5 mm SMD tact switch (LCSC C318884),LCSC / JLCPCB assembly,0.10,0.20,Double-tap = bootloader
-9,2 + 2,-,Case: top shell + bottom plate,"CNC 6061-T6, bead-blasted + anodised; hardware/case/out/bayleaf-{shell,plate}-{left,right}.step; threads per docs/case-drawing.md",JLCCNC / PCBWay CNC / Xometry,115.00,230.00,"Estimate per half: shell ~$80-130 (two-sided machining, tapped holes), plate ~$15-30. Budget option: MJF/SLS nylon print of the same STEP files, ~$15-25 per half"
-10,1 roll,-,Double-sided tape,Thin double-sided tape (tesa 4965 or 3M 9448A),Amazon / hobby shops,8.00,8.00,Holds the battery to the bottom plate
+9,2 + 2 + 2,-,Case: top shell + lid + bottom plate,"CNC 6061-T6, bead-blasted + anodised (lid in a contrast colour like the original); hardware/case/out/bayleaf-{shell,lid,plate}-{left,right}.step; threads per docs/case-drawing.md",JLCCNC / PCBWay CNC / Xometry,110.00,220.00,"Estimate per half: shell ~$70-110, lid ~$10-20, plate ~$15-30. Budget: MJF/SLS nylon prints of the same files, ~$15-25 per half"
+10,1 roll each,-,Double-sided tape,0.1 mm tape for the lid (3M 467MP / Nitto 5000NS) + thin foam tape for the battery,Amazon / hobby shops,10.00,10.00,
 11,1 roll + 1 sheet,-,Kapton,Polyimide tape + 0.05 mm film,Amazon / hobby shops,5.00,5.00,Film goes between PCB and bottom plate; tape under the nice!nano
 12,8,-,Feet,"Clear silicone bumpons, 6-8 mm dia, <= 1.5 mm tall",Amazon / hobby shops,0.40,3.20,
-13,8 + 6,-,Screws,"M2 x 3 (8x) and M2 x 4 (6x), thin/wafer head (head <= 0.5 mm, dia 4 mm), e.g. laptop screw assortment",Amazon / AliExpress,0.40,5.60,Into the tapped bosses of the shell; see docs/case-drawing.md
+13,14,-,Screws,"M2 x 3, thin/wafer head (head <= 0.5 mm, dia 4 mm), e.g. laptop screw assortment",Amazon / AliExpress,0.40,5.60,"7 per half, into the shell posts; see docs/case-drawing.md"
 14,1,-,Shipping,PCB order + switches/keycaps + controllers,-,35.00,35.00,Very rough; depends on country and shipping speed
 ,,,,,,,,
-,,,ELECTRONICS ONLY (items 1-2 and 4-8),,,,166.60,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"
-,,,TOTAL (aluminium case),,,,480.40,"Single build, parts incl. spares; excludes tools"
+,,,ELECTRONICS ONLY (items 1-2 and 4-8),,,,164.60,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"
+,,,TOTAL (aluminium case),,,,470.40,"Single build, parts incl. spares; excludes tools"
 ,,,TOTAL (printed nylon case),,,,290.40,"Same, with ~$40 of MJF/SLS prints instead of CNC aluminium"
 ,,,Optional: JLCPCB assembly of D1-D30 + SW31 + SW32,,,,40.00,"~$20 per design (setup + extended-part fees), saves soldering 64 small parts"
 ,,,Optional: SMT stencils,,,,14.00,One per design (F.Paste layer is in the gerber zip)
-,,,Tools if you have none,"Mini hotplate, low-temp solder paste Sn42Bi58, fine-tip iron, flux, 1.5 mm hex/Phillips #00 driver",,,60-120,
+,,,Tools if you have none,"Mini hotplate, low-temp solder paste Sn42Bi58, fine-tip iron, flux, Phillips #00 driver",,,60-120,

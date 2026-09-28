@@ -3870,7 +3870,7 @@
   (gr_text "RST" (at 23 56.6) (layer "F.SilkS") (tstamp 1481095b-c147-4033-808e-4c148add3aef)
     (effects (font (size 0.8 0.8) (thickness 0.12)))
   )
-  (gr_text "LiPo 4.0x20x40" (at 13.25 27) (layer "Cmts.User") (tstamp f308747c-7260-400b-ab26-2e6742f765cc)
+  (gr_text "LiPo 3.0x20x40" (at 13.25 27) (layer "Cmts.User") (tstamp f308747c-7260-400b-ab26-2e6742f765cc)
     (effects (font (size 0.9 0.9) (thickness 0.135)))
   )
 
