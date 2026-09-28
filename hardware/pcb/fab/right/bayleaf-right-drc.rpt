@@ -1,117 +1,142 @@
 ** Drc report for /home/user/sage/hardware/pcb/bayleaf-right.kicad_pcb **
-** Created on 2026-09-28 19:12:44 **
+** Created on 2026-09-28 20:25:04 **
 
-** Found 36 DRC violations **
+** Found 44 DRC violations **
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(79.5000 mm, 47.0000 mm): PCB Text 'right half - rev 1' on B.Silkscreen
+    @(3.2500 mm, 89.1400 mm): Footprint Text 'RAW' of U1
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(79.5000 mm, 40.0000 mm): PCB Text 'BAYLEAF' on B.Silkscreen
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(23.2500 mm, 89.1400 mm): Footprint Text 'D1' of U1
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(25.5000 mm, 43.7500 mm): Footprint D18
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(46.2500 mm, 11.1500 mm): Footprint D6
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(43.5000 mm, 43.7500 mm): Footprint D17
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(80.2500 mm, 79.1500 mm): Footprint D28
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(115.5000 mm, 77.7500 mm): Footprint D25
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(63.2500 mm, 11.1500 mm): Footprint D5
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
-    @(43.5000 mm, 9.7500 mm): Footprint D5
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(24.5000 mm, 89.8500 mm): Footprint H6
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(43.5000 mm, 26.7500 mm): Footprint D11
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(114.2500 mm, 28.1500 mm): Footprint D8
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(61.5000 mm, 26.7500 mm): Footprint D10
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(46.2500 mm, 79.1500 mm): Footprint D30
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(79.5000 mm, 9.7500 mm): Footprint D3
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(63.2500 mm, 79.1500 mm): Footprint D29
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(61.5000 mm, 60.7500 mm): Footprint D22
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(97.2500 mm, 79.1500 mm): Footprint D27
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(43.5000 mm, 77.7500 mm): Footprint D29
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(80.2500 mm, 11.1500 mm): Footprint D4
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(115.5000 mm, 60.7500 mm): Footprint D19
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(80.2500 mm, 28.1500 mm): Footprint D10
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(115.5000 mm, 43.7500 mm): Footprint D13
+    @(114.2500 mm, 11.1500 mm): Footprint D2
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(46.2500 mm, 28.1500 mm): Footprint D12
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(26.4500 mm, 46.1500 mm): Footprint H5
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(4.2300 mm, 2.4500 mm): Footprint H4
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(114.2500 mm, 62.1500 mm): Footprint D20
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(63.2500 mm, 62.1500 mm): Footprint D23
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(63.2500 mm, 45.1500 mm): Footprint D17
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(97.2500 mm, 45.1500 mm): Footprint D15
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(97.2500 mm, 11.1500 mm): Footprint D3
 [lib_footprint_issues]: Footprint 'SW_SPDT_PCM12' not found in library 'Button_Switch_SMD'.
     Local override; Severity: warning
-    @(2.3000 mm, 39.6000 mm): Footprint SW32
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(2.3000 mm, 53.9000 mm): Footprint SW32
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(115.5000 mm, 9.7500 mm): Footprint D1
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(131.2500 mm, 28.1500 mm): Footprint D7
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(97.5000 mm, 60.7500 mm): Footprint D20
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(80.2500 mm, 62.1500 mm): Footprint D22
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(97.5000 mm, 9.7500 mm): Footprint D2
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(114.2500 mm, 79.1500 mm): Footprint D26
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(97.5000 mm, 43.7500 mm): Footprint D14
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(46.2500 mm, 45.1500 mm): Footprint D18
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(79.5000 mm, 60.7500 mm): Footprint D21
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(97.2500 mm, 28.1500 mm): Footprint D9
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
-    @(25.5000 mm, 9.7500 mm): Footprint D6
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(25.5000 mm, 77.7500 mm): Footprint D30
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(61.5000 mm, 43.7500 mm): Footprint D16
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(43.5000 mm, 60.7500 mm): Footprint D23
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(25.5000 mm, 26.7500 mm): Footprint D12
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(61.5000 mm, 9.7500 mm): Footprint D4
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(25.5000 mm, 60.7500 mm): Footprint D24
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(97.5000 mm, 26.7500 mm): Footprint D8
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
-    Local override; Severity: warning
-    @(79.5000 mm, 26.7500 mm): Footprint D9
+    @(2.0000 mm, 89.8500 mm): Footprint H7
 [lib_footprint_issues]: Footprint 'SW_Push_1P1T_XKB_TS-1187A' not found in library 'Button_Switch_SMD'.
     Local override; Severity: warning
-    @(16.9000 mm, 37.6000 mm): Footprint SW31
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(18.4000 mm, 53.0000 mm): Footprint SW31
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(79.5000 mm, 43.7500 mm): Footprint D15
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(131.2500 mm, 79.1500 mm): Footprint D25
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
-    @(79.5000 mm, 77.7500 mm): Footprint D27
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(133.0500 mm, 2.4500 mm): Footprint H1
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(97.5000 mm, 77.7500 mm): Footprint D26
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(114.2500 mm, 45.1500 mm): Footprint D14
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
-    @(115.5000 mm, 26.7500 mm): Footprint D7
-[lib_footprint_issues]: Footprint 'D_SOD-323' not found in library 'Diode_SMD'.
+    @(22.2700 mm, 2.4500 mm): Footprint H3
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
     Local override; Severity: warning
-    @(61.5000 mm, 77.7500 mm): Footprint D28
+    @(46.2500 mm, 62.1500 mm): Footprint D24
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(131.2500 mm, 62.1500 mm): Footprint D19
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(80.2500 mm, 45.1500 mm): Footprint D16
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(133.0500 mm, 89.8500 mm): Footprint H2
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(131.2500 mm, 11.1500 mm): Footprint D1
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(97.2500 mm, 62.1500 mm): Footprint D21
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(131.2500 mm, 45.1500 mm): Footprint D13
+[lib_footprint_issues]: Footprint 'D_SOD-523' not found in library 'Diode_SMD'.
+    Local override; Severity: warning
+    @(63.2500 mm, 28.1500 mm): Footprint D11
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; Severity: warning
-    @(0.0000 mm, 1.0000 mm): Line on Edge.Cuts
-    @(0.5700 mm, 38.2000 mm): Line on F.Silkscreen
+    @(2.7500 mm, 48.4500 mm): Line on Edge.Cuts
+    @(8.6500 mm, 48.6000 mm): Footprint Text '+' of BT1
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; Severity: warning
-    @(0.0000 mm, 1.0000 mm): Line on Edge.Cuts
-    @(-0.7200 mm, 39.5000 mm): Line on F.Silkscreen
+    @(0.0000 mm, 2.0000 mm): Line on Edge.Cuts
+    @(0.5700 mm, 52.5000 mm): Line on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(0.0000 mm, 2.0000 mm): Line on Edge.Cuts
+    @(-0.7200 mm, 53.8000 mm): Line on F.Silkscreen
 
 ** Found 0 unconnected pads **
 

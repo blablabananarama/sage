@@ -12,6 +12,7 @@ left-half PCB. The right half is the mirror image (x -> BOARD_W - x); footprints
 are *not* flipped because every part sits on the top side.
 """
 import argparse
+import math
 import os
 import shutil
 import subprocess
@@ -26,28 +27,40 @@ KICAD_FP = "/usr/share/kicad/footprints"
 FREEROUTING_JAR = os.environ.get("FREEROUTING_JAR", "/opt/tools/freerouting2.jar")  # v2.1.0
 
 # ---------------------------------------------------------------- geometry (mm)
-BOARD_W, BOARD_H = 135.5, 89.5   # fits a 139 x 93 mm case with 1.5 mm walls + 0.25 mm gap
-CORNER_R = 1.0
+# The board drops into the MK5-style top shell (hardware/case/case.py): shell coords = PCB coords + 1.05.
+# y grows toward the typist, so the "top" edge (y = 0) is the back of the keyboard.
+BOARD_W, BOARD_H = 134.9, 92.3   # shell cavity 135.4 x 92.8 minus 0.25 mm clearance per side
+CORNER_R = 2.0
 ROWS, COLS = 5, 6
-PITCH_X, PITCH_Y = 18.0, 17.0    # PG1316S caps are 16.05 x 16.25 mm
-KEY_X0 = 2.0 + PITCH_X / 2       # first key centre
-KEY_Y0 = (BOARD_H - ROWS * PITCH_Y) / 2 + PITCH_Y / 2
-DIODE_DX, DIODE_DY = PITCH_X / 2, -1.0  # diode sits in the gap right of each switch
+PITCH_X, PITCH_Y = 17.0, 17.0    # 103 x 86 mm key window = 5 x 17 + 16 mm cap + ~1 mm clearance
+KEY_X0, KEY_Y0 = 12.15, 12.15    # first key centre (centred in the window)
+DIODE_DX, DIODE_DY = -PITCH_X / 2, -1.0  # SOD-523 in the 0.95 mm gap left of each keycap
 
-NANO_X, NANO_Y = 123.0, 0.6 + 33.3 / 2  # nice!nano centre (USB-C at the top edge)
-USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle
-BAT_CUT = (111.8, 45.0, 134.0, BOARD_H)  # x0, y0, x1, y1 - LiPo bay, open to bottom edge
-BAT_PADS = (126.3, 42.0)
-RESET = (118.6, 37.6)
-POWER_SW = (BOARD_W - 2.3, 39.6)         # actuator pokes through the inner side wall
+NANO_X, NANO_Y = 121.65, 91.85 - 33.3 / 2  # nice!nano centre, rotated 180: USB-C faces the front edge
+NANO_ROT = 180
+USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle (front edge)
+BAT_CUT = (111.15, 6.45, 132.15, 48.45)  # x0, y0, x1, y1 - closed LiPo window (4 x 20 x 40 cell)
+BAT_PADS = (124.5, 51.0)
+RESET = (116.5, 53.0)                    # reachable through a pin-hole in the shell roof
+POWER_SW = (BOARD_W - 2.3, 53.9)         # actuator pokes through the inner side wall
+# Shell bosses (PCB coords): x, y, boss diameter. Each gets a 2.2 mm hole; M2 screws come up through
+# the bottom plate and the PCB, so the bosses clamp the board. Must match BOSSES in case.py.
+BOSSES = [(1.85, 2.45, 6.0), (1.85, 89.85, 6.0), (112.63, 2.45, 6.0), (130.67, 2.45, 6.0),
+          (108.45, 46.15, 6.0), (110.40, 89.85, 4.0), (132.90, 89.85, 4.0)]
 
 # Pro Micro pin label -> footprint pad number (see nice_nano_v2_flush.kicad_mod)
 NANO_PADS = {n: i + 1 for i, n in enumerate(
     ["D1", "D0", "GND", "GND2", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9",
      "RAW", "GND3", "RST", "3V3", "D21", "D20", "D19", "D18", "D15", "D14", "D16", "D10"])}
-# Matrix wiring - must match firmware/boards/shields/bayleaf/bayleaf.dtsi
-COL_PINS = ["D1", "D0", "D2", "D3", "D4", "D5"]   # physical columns, left -> right
-ROW_PINS = ["D6", "D7", "D8", "D9", "D14"]        # rows, top -> bottom
+# Matrix wiring - must match firmware/boards/shields/bayleaf/bayleaf_{left,right}.overlay.
+# The nice!nano is rotated 180 deg (USB-C to the front), so each half uses the pin column that faces
+# its keys plus the back end of the other column; the front-corner pins (D0/D1, RAW side) and the
+# NFC pins (D10/D16) stay unused.
+MATRIX_PINS = {
+    #          columns, physical left -> right                rows, back -> front
+    "left":  (["D21", "D20", "D19", "D18", "D15", "D14"], ["D9", "D8", "D7", "D6", "D5"]),
+    "right": (["D2", "D3", "D4", "D5", "D6", "D7"], ["D8", "D9", "D18", "D15", "D14"]),
+}
 
 
 def mm(v):
@@ -155,21 +168,20 @@ class Builder:
         # Outline traced clockwise in *left-half* coordinates, mirrored for the right half.
         ux0 = NANO_X - USB_NOTCH_W / 2
         ux1 = NANO_X + USB_NOTCH_W / 2
-        bx0, by0, bx1, _ = BAT_CUT
         r = CORNER_R
         W, H = BOARD_W, BOARD_H
         poly = [  # straight edges; rounded outer corners are added as arcs
-            (r, 0), (ux0, 0), (ux0, USB_NOTCH_D), (ux1, USB_NOTCH_D), (ux1, 0), (W - r, 0),
+            (r, 0), (W - r, 0),
             None,  # corner top-right
             (W, r), (W, H - r),
             None,  # corner bottom-right
-            (W - r, H), (bx1, H), (bx1, by0), (bx0, by0), (bx0, H), (r, H),
+            (W - r, H), (ux1, H), (ux1, H - USB_NOTCH_D), (ux0, H - USB_NOTCH_D), (ux0, H), (r, H),
             None,  # corner bottom-left
             (0, H - r), (0, r),
             None,  # corner top-left
         ]
-        corners = {6: ((W - r, r), (W - r, 0)), 9: ((W - r, H - r), (W, H - r)),
-                   16: ((r, H - r), (r, H)), 19: ((r, r), (0, r))}
+        corners = {2: ((W - r, r), (W - r, 0)), 5: ((W - r, H - r), (W, H - r)),
+                   12: ((r, H - r), (r, H)), 15: ((r, r), (0, r))}
         prev = None
         for i, p in enumerate(poly + [poly[0]]):
             if p is None:
@@ -180,6 +192,10 @@ class Builder:
             if prev is not None:
                 self.seg(pcbnew.Edge_Cuts, (self.X(prev[0]), prev[1]), (self.X(p[0]), p[1]))
             prev = p
+        bx0, by0, bx1, by1 = BAT_CUT
+        for a, b in (((bx0, by0), (bx1, by0)), ((bx1, by0), (bx1, by1)),
+                     ((bx1, by1), (bx0, by1)), ((bx0, by1), (bx0, by0))):
+            self.seg(pcbnew.Edge_Cuts, (self.X(a[0]), a[1]), (self.X(b[0]), b[1]))
 
     # ------------------------------------------------------------ parts
     def parts(self):
@@ -189,8 +205,8 @@ class Builder:
                 x = KEY_X0 + c * PITCH_X
                 y = KEY_Y0 + r * PITCH_Y
                 sw = self.place(LIB, "Kailh_PG1316S", f"SW{idx}", x, y, value="PG1316S")
-                d = self.place(f"{KICAD_FP}/Diode_SMD.pretty", "D_SOD-323", f"D{idx}",
-                               x + DIODE_DX, y + DIODE_DY, rot=90, value="1N4148WS")
+                d = self.place(f"{KICAD_FP}/Diode_SMD.pretty", "D_SOD-523", f"D{idx}",
+                               x + DIODE_DX, y + DIODE_DY, rot=90, value="1N4148WT")
                 # right half: physical column index counted left -> right on that half
                 pc = c if self.side == "left" else COLS - 1 - c
                 col_net = f"COL{pc}"
@@ -201,17 +217,21 @@ class Builder:
                 self.connect(d, "1", row_net)        # cathode -> row (col2row)
                 idx += 1
 
-        u = self.place(LIB, "nice_nano_v2_flush", "U1", NANO_X, NANO_Y, value="nice!nano v2")
-        for c, p in enumerate(COL_PINS):
+        u = self.place(LIB, "nice_nano_v2_flush", "U1", NANO_X, NANO_Y, rot=NANO_ROT, value="nice!nano v2")
+        col_pins, row_pins = MATRIX_PINS[self.side]
+        for c, p in enumerate(col_pins):
             self.connect(u, NANO_PADS[p], f"COL{c}")
-        for r, p in enumerate(ROW_PINS):
+        for r, p in enumerate(row_pins):
             self.connect(u, NANO_PADS[p], f"ROW{r}")
-        for g in ("GND", "GND2", "GND3"):
+        # The nice!nano ties its GND pins together internally; the third one (B-, next to RAW) sits in
+        # the boxed-in front corner, so only the two on the other column are wired.
+        for g in ("GND", "GND2"):
             self.connect(u, NANO_PADS[g], "GND")
         self.connect(u, NANO_PADS["RAW"], "RAW")
         self.connect(u, NANO_PADS["RST"], "RST")
 
-        bt = self.place(LIB, "Battery_Pads", "BT1", *BAT_PADS, value="LiPo 3.7V")
+        bt = self.place(LIB, "Battery_Pads", "BT1", *BAT_PADS, rot=180 if self.side == "left" else 0,
+                        value="LiPo 3.7V")  # "+" pad next to the power switch on both halves
         self.connect(bt, "1", "BAT+")
         self.connect(bt, "2", "GND")
 
@@ -226,28 +246,62 @@ class Builder:
         self.connect(pwr, "1", "BAT+")
         self.connect(pwr, "2", "RAW")
 
+        if self.side == "left":
+            self.preroute_raw(u, pwr)
+
         self.text("BAYLEAF", 56, 40, 4.0, pcbnew.B_SilkS)
         self.text(f"{self.side} half - rev 1", 56, 47, 1.5, pcbnew.B_SilkS)
         self.text("RST", RESET[0] - 4.6, RESET[1] + 3.6, 0.8)
-        self.text("LiPo 3.0x20x40", 123.0, 66.0, 0.9, pcbnew.Cmts_User)
+        self.text("LiPo 4.0x20x40", 121.65, 27.0, 0.9, pcbnew.Cmts_User)
+        for i, (x, y, d) in enumerate(BOSSES):
+            h = self.place(f"{KICAD_FP}/MountingHole.pretty", "MountingHole_2.2mm_M2", f"H{i + 1}", x, y,
+                           value=f"boss {d:g}")
+            for g in list(h.GraphicalItems()):  # stock courtyard is wider than the 4 mm bosses
+                if g.GetLayer() == pcbnew.F_CrtYd:
+                    h.Remove(g)
+
+    def preroute_raw(self, nano, pwr):
+        """On the left half the nice!nano's RAW pin ends up boxed in at the front-left corner (boss,
+        USB notch, board edge); Freerouting rarely finds the way out, so route it by hand and lock it:
+        B.Cu between the two pin columns, past the top of the nano, via up to the slide switch."""
+        raw = next(p for p in nano.Pads() if p.GetName() == str(NANO_PADS["RAW"]))
+        sw = next(p for p in pwr.Pads() if p.GetName() == "2")
+        rx, ry = pcbnew.ToMM(raw.GetPosition().x), pcbnew.ToMM(raw.GetPosition().y)
+        sx, sy = pcbnew.ToMM(sw.GetPosition().x), pcbnew.ToMM(sw.GetPosition().y)
+        lane_x = rx + 1.37                      # between the pin column and the USB notch
+        lane_y = NANO_Y - 33.3 / 2 - 1.35       # just behind the nice!nano
+        via = (sx - 1.6, sy)
+        pts = [(rx, ry), (lane_x, ry), (lane_x, lane_y), (via[0] - (lane_y - via[1]), lane_y), via]
+        net = self.net("RAW")
+        for a, b in zip(pts, pts[1:]):
+            t = pcbnew.PCB_TRACK(self.board)
+            t.SetStart(pt(*a)); t.SetEnd(pt(*b)); t.SetWidth(mm(0.25)); t.SetLayer(pcbnew.B_Cu)
+            t.SetNet(net); t.SetLocked(True); self.board.Add(t)
+        v = pcbnew.PCB_VIA(self.board)
+        v.SetPosition(pt(*via)); v.SetWidth(mm(0.6)); v.SetDrill(mm(0.3)); v.SetNet(net); v.SetLocked(True)
+        self.board.Add(v)
+        t = pcbnew.PCB_TRACK(self.board)
+        t.SetStart(pt(*via)); t.SetEnd(pt(sx, sy)); t.SetWidth(mm(0.25)); t.SetLayer(pcbnew.F_Cu)
+        t.SetNet(net); t.SetLocked(True); self.board.Add(t)
 
     def keepouts(self):
-        # No top-layer copper under the nice!nano (its underside is not insulated).
-        za = pcbnew.ZONE(self.board)
-        za.SetIsRuleArea(True)
-        za.SetDoNotAllowTracks(True)
-        za.SetDoNotAllowVias(False)
-        za.SetDoNotAllowPads(False)
-        za.SetDoNotAllowCopperPour(True)
-        za.SetDoNotAllowFootprints(False)
-        za.SetLayer(pcbnew.F_Cu)
-        ol = za.Outline()
-        ol.NewOutline()
-        x0, x1 = NANO_X - 9.0, NANO_X + 9.0
-        y0, y1 = 0.0, NANO_Y + 33.3 / 2
-        for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
-            ol.Append(mm(self.X(x)), mm(y))
-        self.board.Add(za)
+        # The aluminium bosses sit on the board: no top copper or vias under them.
+        for x, y, d in BOSSES:
+            zb = pcbnew.ZONE(self.board)
+            zb.SetIsRuleArea(True)
+            zb.SetDoNotAllowTracks(True)
+            zb.SetDoNotAllowVias(True)
+            zb.SetDoNotAllowPads(False)
+            zb.SetDoNotAllowCopperPour(True)
+            zb.SetDoNotAllowFootprints(False)
+            zb.SetLayer(pcbnew.F_Cu)
+            o = zb.Outline()
+            o.NewOutline()
+            r = d / 2 + 0.4
+            for k in range(24):
+                a = 2 * math.pi * k / 24
+                o.Append(mm(self.X(x + r * math.cos(a))), mm(y + r * math.sin(a)))
+            self.board.Add(zb)
 
     def save(self, path):
         self.board.BuildConnectivity()
@@ -304,10 +358,9 @@ def import_ses(board, ses_path):
             dia = float(ps[2][1][2]) * scale
             vias[ps[1]] = dia
     net_out = next(x for x in routes if isinstance(x, list) and x[0] == "network_out")
-    netinfo = board.GetNetInfo()
     count = 0
     for net in net_out[1:]:
-        ni = netinfo.GetNetItem(net[1])
+        ni = board.FindNet(net[1])
         for item in net[2:]:
             if item[0] == "wire":
                 path = item[1]
@@ -353,7 +406,7 @@ def prune_dangling(board):
         removed += len(stubs)
 
 
-def route(pcb_path, attempts=6):
+def route(pcb_path, attempts=10):
     base = pcb_path[:-10]
     dsn, ses = base + ".dsn", base + ".ses"
     board = pcbnew.LoadBoard(pcb_path)
@@ -382,7 +435,7 @@ def route(pcb_path, attempts=6):
 # Parts JLCPCB can place (everything else is hand-soldered, see docs/assembly.md).
 # LCSC numbers: check stock before ordering.
 JLC_PARTS = {
-    "D_SOD-323": ("1N4148WS", "C2128"),
+    "D_SOD-523": ("1N4148WT", ""),  # pick any 1N4148WT/SOD-523 in JLC's parts search
     "SW_Push_1P1T_XKB_TS-1187A": ("TS-1187A-B-A-B", "C318884"),
     "SW_SPDT_PCM12": ("MSK12C02", "C431540"),
 }

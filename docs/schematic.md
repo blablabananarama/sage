@@ -15,21 +15,23 @@ The PCBs are generated straight from `hardware/pcb/generate_pcb.py`, with no sep
  ROWm ──┴──────────────┴─── … (one row wire per row)
 ```
 
-| Net  | nice!nano pin (Pro Micro label) | nRF52840 GPIO | ZMK `&pro_micro` |
-|------|------|------|----|
-| COL0 (outer-left column of the left half / inner column of the right half) | D1 | P0.06 | 1 |
-| COL1 | D0 | P0.08 | 0 |
-| COL2 | D2 | P0.17 | 2 |
-| COL3 | D3 | P0.20 | 3 |
-| COL4 | D4 | P0.22 | 4 |
-| COL5 | D5 | P0.24 | 5 |
-| ROW0 (top row) | D6 | P1.00 | 6 |
-| ROW1 | D7 | P0.11 | 7 |
-| ROW2 | D8 | P1.04 | 8 |
-| ROW3 | D9 | P1.06 | 9 |
-| ROW4 (bottom row) | D14 | P1.11 | 14 |
+| Net | Left half: pin (GPIO, `&pro_micro`) | Right half: pin (GPIO, `&pro_micro`) |
+|---|---|---|
+| COL0 | D21 (P0.31, 21) | D2 (P0.17, 2) |
+| COL1 | D20 (P0.29, 20) | D3 (P0.20, 3) |
+| COL2 | D19 (P0.02, 19) | D4 (P0.22, 4) |
+| COL3 | D18 (P1.15, 18) | D5 (P0.24, 5) |
+| COL4 | D15 (P1.13, 15) | D6 (P1.00, 6) |
+| COL5 | D14 (P1.11, 14) | D7 (P0.11, 7) |
+| ROW0 (back row) | D9 (P1.06, 9) | D8 (P1.04, 8) |
+| ROW1 | D8 (P1.04, 8) | D9 (P1.06, 9) |
+| ROW2 | D7 (P0.11, 7) | D18 (P1.15, 18) |
+| ROW3 | D6 (P1.00, 6) | D15 (P1.13, 15) |
+| ROW4 (front row) | D5 (P0.24, 5) | D14 (P1.11, 14) |
 
-On each half, columns are numbered left → right, so the right half's COL0 is its innermost column. The firmware adds `col-offset = <6>` for the right half.
+The nice!nano is rotated 180° so its USB-C faces the front. Each half therefore uses the pin column that faces its keys, plus the back end of the other column. The front-corner pins (D0/D1) and the NFC pins (D10/D16) are left unused.
+
+On each half, columns are numbered left → right, so the right half's COL0 is its innermost column. The pins are set per half in `bayleaf_left.overlay` / `bayleaf_right.overlay`, and the right half adds `col-offset = <6>`.
 
 ## Power and misc
 
@@ -37,7 +39,7 @@ On each half, columns are numbered left → right, so the right half's COL0 is i
  LiPo + ── BT1.1 (BAT+) ── SW32.1 ┐
                                    ├ MSK12C02 slide switch (common = pin 2)
  nice!nano RAW/B+ ── SW32.2 ───────┘   SW32.3 unused (= off position)
- LiPo − ── BT1.2 ── GND ── nice!nano GND (3 pins)
+ LiPo − ── BT1.2 ── GND ── nice!nano GND (2 pins wired; the third, B−, is tied internally)
 
  nice!nano RST ── SW31 (TS-1187A tact switch) ── GND   double-tap → UF2 bootloader
 ```
@@ -46,6 +48,7 @@ The nice!nano handles charging over its own USB-C port, battery protection and 3
 
 ## Mechanical notes that affect the circuit
 
-* The nice!nano is soldered flush on the top side. A top-copper keep-out under its footprint means only vias and bottom-layer traces run under it. Put a piece of Kapton on the PCB there anyway.
-* The mid-mount USB-C receptacle hangs about 1.1 mm below the nice!nano, into the notch in the PCB's top edge. The case floor has a 0.35 mm relief below it.
+* The nice!nano is soldered flush on the top side. Traces run under it on both layers, protected by soldermask; put a piece of Kapton on the PCB there before soldering it down.
+* The nice!nano is rotated so its USB-C faces the front edge. The mid-mount receptacle hangs about 1.1 mm below the nice!nano, into a notch in the PCB's front edge; the bottom plate has a 0.4 mm relief below it.
+* The seven aluminium bosses of the case press on the top of the PCB. Keep-out zones keep top copper and vias away from them, and the M2 screws pass through 2.2 mm non-plated holes.
 * The PG1316S frame pads (`MP`) are not connected to anything. They are solder anchors only.

@@ -1,21 +1,22 @@
 Item,Qty (both halves),Designators (per half),Part,Specification / part number,Where to buy,Unit price USD (est. 2026-09),Line total USD (est.),Notes
-1,2 designs x 5 pcs,-,PCB left + PCB right,"2-layer FR4, 0.8 mm, ENIG, any colour; gerbers in hardware/pcb/fab/*/bayleaf-*-gerbers.zip",JLCPCB / PCBWay,20.00,40.00,"Price per design incl. ENIG; HASL lead-free is ~$8/design but ENIG gives flatter pads for the SMD switches"
+1,2 designs x 5 pcs,-,PCB left + PCB right,"2-layer FR4, 0.8 mm, ENIG, any colour; gerbers in hardware/pcb/fab/*/bayleaf-*-gerbers.zip",JLCPCB / PCBWay,20.00,40.00,Price per design incl. ENIG; HASL lead-free is ~$8/design but ENIG gives flatter pads for the SMD switches
 2,60 (+4 spare),SW1-SW30,Key switch,"Kailh PG1316S (CPG1316S01D02), pick your weight (25/35/40/60 gf)","beekeeb, keycapsss, holykeebs, modulo.industries",1.00,64.00,"Ultra-low-profile SMD switch, reflow-soldered"
-3,60,-,Keycap,"Kailh PG1316S 1U keycap (16 x 16 mm)","keycapsss, holykeebs, modulo.industries",0.45,27.00,"The original build used custom MJF-printed caps; stock Kailh caps fit the same switch"
-4,60 (+10 spare),D1-D30,Diode,"1N4148WS, SOD-323 (LCSC C2128)",LCSC / JLCPCB assembly,0.01,1.00,"Placed in the 2 mm gap between keycaps"
+3,60,-,Keycap,Kailh PG1316S 1U keycap (16 x 16 mm),"keycapsss, holykeebs, modulo.industries",0.45,27.00,The original build used custom MJF-printed caps; stock Kailh caps fit the same switch
+4,60 (+10 spare),D1-D30,Diode,"1N4148WT, SOD-523 (0.8 mm wide body; fits the 0.95 mm gap between keycaps)",LCSC / JLCPCB assembly,0.02,1.40,"Search ""1N4148WT"" in the LCSC/JLC catalogue; any SOD-523 small-signal diode works"
 5,2,U1,Controller,"nice!nano v2 (nRF52840, mid-mount USB-C, 3.2 mm thick)","nicekeyboards.com, typeractive.xyz, boardsource, mechboards",25.00,50.00,"Soldered flush to the PCB, no headers/sockets"
-6,2,BT1,Battery,"3.7 V LiPo pouch cell 302040 (3.0 x 20 x 40 mm, ~180-200 mAh) with protection circuit","AliExpress / Adafruit-style LiPo shops",4.00,8.00,"Any cell <= 3.3 x 21 x 43 mm fits the bay"
+6,2,BT1,Battery,"3.7 V LiPo pouch cell 402040 (4.0 x 20 x 40 mm, ~250-300 mAh) with protection circuit",AliExpress / Adafruit-style LiPo shops,5.00,10.00,Any cell <= 4.2 x 21 x 42 mm fits the window in the PCB under the controller-bay roof
 7,2 (+3 spare),SW32,Power switch,"MSK12C02 SPDT side-actuated SMD slide switch (LCSC C431540), PCM12 footprint",LCSC / JLCPCB assembly,0.20,1.00,
-8,2,SW31,Reset button,"XKB TS-1187A-B-A-B 5.1 x 5.1 x 1.5 mm SMD tact switch (LCSC C318884)",LCSC / JLCPCB assembly,0.10,0.20,Double-tap = bootloader
-9,2,-,Case,"CNC-machined 6061-T6 aluminium tray, bead-blasted + anodised; hardware/case/out/bayleaf-case-{left,right}.step",JLCCNC / PCBWay CNC / Xometry,90.00,180.00,"Quote range seen for this size: ~$60-125 per half. Budget option: MJF PA12 print of the -mjf variant (~$10-15 per half)"
-10,1 roll,-,PCB mounting tape,"Double-sided tape <= 0.1 mm (tesa 4965 or 3M 9448A)",Amazon / hobby shops,8.00,8.00,Holds the PCB and battery to the case floor
-11,1 roll,-,Kapton tape,"Polyimide tape, 0.05-0.06 mm",Amazon / hobby shops,4.00,4.00,Insulates the nice!nano underside and the cell
+8,2,SW31,Reset button,XKB TS-1187A-B-A-B 5.1 x 5.1 x 1.5 mm SMD tact switch (LCSC C318884),LCSC / JLCPCB assembly,0.10,0.20,Double-tap = bootloader
+9,2 + 2,-,Case: top shell + bottom plate,"CNC 6061-T6, bead-blasted + anodised; hardware/case/out/bayleaf-{shell,plate}-{left,right}.step; threads per docs/case-drawing.md",JLCCNC / PCBWay CNC / Xometry,115.00,230.00,"Estimate per half: shell ~$80-130 (two-sided machining, tapped holes), plate ~$15-30. Budget option: MJF/SLS nylon print of the same STEP files, ~$15-25 per half"
+10,1 roll,-,Double-sided tape,Thin double-sided tape (tesa 4965 or 3M 9448A),Amazon / hobby shops,8.00,8.00,Holds the battery to the bottom plate
+11,1 roll + 1 sheet,-,Kapton,Polyimide tape + 0.05 mm film,Amazon / hobby shops,5.00,5.00,Film goes between PCB and bottom plate; tape under the nice!nano
 12,8,-,Feet,"Clear silicone bumpons, 6-8 mm dia, <= 1.5 mm tall",Amazon / hobby shops,0.40,3.20,
-13,1,-,Shipping,"PCB order + switches/keycaps + controllers",-,35.00,35.00,Very rough; depends on country and shipping speed
+13,8 + 6,-,Screws,"M2 x 3 (8x) and M2 x 4 (6x), thin/wafer head (head <= 0.5 mm, dia 4 mm), e.g. laptop screw assortment",Amazon / AliExpress,0.40,5.60,Into the tapped bosses of the shell; see docs/case-drawing.md
+14,1,-,Shipping,PCB order + switches/keycaps + controllers,-,35.00,35.00,Very rough; depends on country and shipping speed
 ,,,,,,,,
-,,,"ELECTRONICS ONLY (items 1-2, 4-8)",,,,164.20,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"
-,,,TOTAL (aluminium case),,,,421.40,"Single build, parts incl. spares; excludes tools"
-,,,TOTAL (MJF printed case),,,,266.40,"Same, with ~$25 of printed cases instead of $180 CNC"
+,,,ELECTRONICS ONLY (items 1-2 and 4-8),,,,166.60,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"
+,,,TOTAL (aluminium case),,,,480.40,"Single build, parts incl. spares; excludes tools"
+,,,TOTAL (printed nylon case),,,,290.40,"Same, with ~$40 of MJF/SLS prints instead of CNC aluminium"
 ,,,Optional: JLCPCB assembly of D1-D30 + SW31 + SW32,,,,40.00,"~$20 per design (setup + extended-part fees), saves soldering 64 small parts"
-,,,Optional: SMT stencils,,,,14.00,"One per design (F.Paste layer is in the gerber zip); makes switch paste application much easier"
-,,,Tools if you have none,"Mini hotplate (e.g. MHP30 or 50x50 mm PTC plate), low-temp solder paste Sn42Bi58, fine-tip iron, flux",,,60-120,
+,,,Optional: SMT stencils,,,,14.00,One per design (F.Paste layer is in the gerber zip)
+,,,Tools if you have none,"Mini hotplate, low-temp solder paste Sn42Bi58, fine-tip iron, flux, 1.5 mm hex/Phillips #00 driver",,,60-120,

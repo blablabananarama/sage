@@ -2,7 +2,7 @@
  * Bayleaf - 60-key (2 x 5x6) ortholinear wireless split, Kailh PG1316S.
  * SPDX-License-Identifier: MIT
  *
- * Matrix wiring must match hardware/pcb/generate_pcb.py (COL_PINS / ROW_PINS).
+ * Matrix wiring must match hardware/pcb/generate_pcb.py (MATRIX_PINS).
  * Columns are numbered left -> right on each half; diodes are col2row.
  */
 
@@ -102,21 +102,6 @@ RC(4,0) RC(4,1) RC(4,2) RC(4,3) RC(4,4) RC(4,5)  RC(4,6) RC(4,7) RC(4,8) RC(4,9)
         wakeup-source;
         diode-direction = "col2row";
 
-        // same pins on both halves (the right PCB is a mirrored copy)
-        row-gpios
-            = <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            , <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            , <&pro_micro 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            , <&pro_micro 9 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            , <&pro_micro 14 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            ;
-        col-gpios
-            = <&pro_micro 1 GPIO_ACTIVE_HIGH>
-            , <&pro_micro 0 GPIO_ACTIVE_HIGH>
-            , <&pro_micro 2 GPIO_ACTIVE_HIGH>
-            , <&pro_micro 3 GPIO_ACTIVE_HIGH>
-            , <&pro_micro 4 GPIO_ACTIVE_HIGH>
-            , <&pro_micro 5 GPIO_ACTIVE_HIGH>
-            ;
+        // row-gpios / col-gpios differ per half: see bayleaf_left.overlay / bayleaf_right.overlay
     };
 };
