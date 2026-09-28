@@ -1,7 +1,7 @@
 # Bayleaf firmware (ZMK)
 
 * `boards/shields/bayleaf/` holds the shield: the matrix (`bayleaf.dtsi`), left/right overlays and Kconfig.
-* `bayleaf.keymap`, `bayleaf.conf` and `west.yml` (in `firmware/` itself) hold the user keymap , user Kconfig overrides and the west manifest (ZMK `main`).
+* `bayleaf.keymap`, `bayleaf.conf` and `west.yml` (in `firmware/` itself) hold the user keymap, user Kconfig overrides and the west manifest (ZMK `main`).
 * `build.yaml` is the build matrix. It builds left, right and `settings_reset` for `nice_nano//zmk` (nice!nano v2).
 
 GitHub Actions (`.github/workflows/firmware.yml`) builds everything on every push that touches `firmware/`. Download the `bayleaf-firmware` artifact from the run.
