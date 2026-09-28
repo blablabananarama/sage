@@ -1,0 +1,16 @@
+name: Build ZMK firmware
+
+on:
+  push:
+    paths: ["firmware/**", "zephyr/**", ".github/workflows/firmware.yml"]
+  pull_request:
+    paths: ["firmware/**", "zephyr/**", ".github/workflows/firmware.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    with:
+      config_path: firmware/config
+      build_matrix_path: firmware/build.yaml
+      archive_name: bayleaf-firmware

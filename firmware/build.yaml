@@ -1,0 +1,9 @@
+# GitHub Actions build matrix (see .github/workflows/firmware.yml)
+---
+include:
+  - board: nice_nano//zmk
+    shield: bayleaf_left
+  - board: nice_nano//zmk
+    shield: bayleaf_right
+  - board: nice_nano//zmk
+    shield: settings_reset

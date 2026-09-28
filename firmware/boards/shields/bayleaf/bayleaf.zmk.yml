@@ -1,0 +1,11 @@
+file_format: "1"
+id: bayleaf
+name: Bayleaf
+type: shield
+url: https://github.com/blablabananarama/sage
+requires: [pro_micro]
+features:
+  - keys
+siblings:
+  - bayleaf_left
+  - bayleaf_right

@@ -1,0 +1,4 @@
+name: bayleaf
+build:
+  settings:
+    board_root: firmware

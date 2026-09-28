@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+
+config SHIELD_BAYLEAF_LEFT
+    def_bool $(shields_list_contains,bayleaf_left)
+
+config SHIELD_BAYLEAF_RIGHT
+    def_bool $(shields_list_contains,bayleaf_right)
