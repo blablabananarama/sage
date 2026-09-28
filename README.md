@@ -4,7 +4,14 @@ This is an open, buildable re-creation of Sebastian Graz's [Bayleaf](https://www
 
 > **Provenance.** The original Bayleaf is a one-off prototype and is **not open source**. None of its files are used here. This repository is an independent design built to the published specs (139 × 93 mm per half, 5 mm thick, ~180 g, PG1316S, nice!nano/ZMK, CNC aluminium enclosure, MJF keycaps). Everything else was designed from scratch: board layout, pin mapping, case geometry, keymap and part choices. The PG1316S land pattern comes from Kailh's datasheet (CPG1316S01D02).
 
-![left half](docs/img/render-left.png)
+![Bayleaf reproduction, both halves](docs/img/3d/hero.jpg)
+
+| | |
+|---|---|
+| ![top view](docs/img/3d/top.jpg) | ![controller close-up](docs/img/3d/closeup.jpg) |
+| ![exploded view: case, PCB, switches, keycaps](docs/img/3d/exploded.jpg) | ![5 mm profile](docs/img/3d/profile.jpg) |
+
+*Renders are generated from the actual case STEP and the routed PCB artwork (`docs/render3d/render.sh`). The keycap legends show the default keymap.*
 
 | | Original Bayleaf (published) | This reproduction |
 |---|---|---|
@@ -51,6 +58,7 @@ These are estimates from September 2026 for a single keyboard, including spares 
 | Tape, Kapton, bumpons | 15 |
 | Shipping (rough) | 35 |
 | 2 × CNC aluminium case (6061, anodised) | 180 |
+| **Electronics only** (PCBs, switches, diodes, controllers, batteries, slide and reset switches) | **≈ $165** |
 | **Total with aluminium case** | **≈ $420** |
 | **Total with MJF-printed case instead** | **≈ $265** |
 

@@ -1,0 +1,154 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#fff;overflow:hidden}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const P = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+const W = +P.w || 2000, H = +P.h || 1250;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(P.exp || 0.78);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(P.bg || '#eef0f2');
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.8;
+const sun = new THREE.DirectionalLight(0xffffff, 1.3);
+sun.position.set(-120, -160, 320); sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -260, right: 260, top: 200, bottom: -200, near: 1, far: 800 });
+sun.shadow.bias = -0.0004; scene.add(sun); scene.add(sun.target);
+sun.target.position.set(140, -46, 0);
+
+// ---- constants mirrored from hardware/pcb/generate_pcb.py + hardware/case/case.py
+const OFF = 1.75, OUT_W = 139, OUT_H = 93, BW = 135.5, BH = 89.5, FLOOR = 0.7;
+const PCB_Z = 0.8, PCB_T = 0.8, TOP = PCB_Z + PCB_T;
+const GAP = +(P.gap ?? 70);
+const EXPLODE = +(P.explode || 0);
+const LABELS = [
+ ['Esc','1','2','3','4','5','6','7','8','9','0','Bksp'],
+ ['Tab','Q','W','E','R','T','Y','U','I','O','P','Del'],
+ ['Ctrl','A','S','D','F','G','H','J','K','L',';',"'"],
+ ['Shift','Z','X','C','V','B','N','M',',','.','/','Enter'],
+ ['Ctrl','Gui','Alt','Gui','Lower','Space','Space','Raise','←','↓','↑','→']];
+const ACCENT = new Set(['Esc','Enter']);
+const DARK = new Set(['Tab','Ctrl','Shift','Gui','Alt','Lower','Raise','Bksp','Del','←','↓','↑','→','Space']);
+
+const mat = {
+  alu: new THREE.MeshStandardMaterial({ color: P.alu || '#8d9096', metalness: 0.75, roughness: 0.42 }),
+  cap: new THREE.MeshStandardMaterial({ color: '#dcd9d2', roughness: 0.62 }),
+  capDark: new THREE.MeshStandardMaterial({ color: '#4a4d52', roughness: 0.62 }),
+  capAcc: new THREE.MeshStandardMaterial({ color: '#d9822b', roughness: 0.6 }),
+  sw: new THREE.MeshStandardMaterial({ color: '#2a2b2e', roughness: 0.5 }),
+  swFrame: new THREE.MeshStandardMaterial({ color: '#b9bcc0', metalness: 0.9, roughness: 0.3 }),
+  pcbSide: new THREE.MeshStandardMaterial({ color: '#15171a', roughness: 0.7 }),
+  nano: new THREE.MeshStandardMaterial({ color: '#1d1a2e', roughness: 0.55 }),
+  shield: new THREE.MeshStandardMaterial({ color: '#c7c9cc', metalness: 0.95, roughness: 0.25 }),
+  bat: new THREE.MeshStandardMaterial({ color: '#b8bcc2', metalness: 0.6, roughness: 0.35 }),
+  batLabel: new THREE.MeshStandardMaterial({ color: '#34465e', roughness: 0.6 }),
+  black: new THREE.MeshStandardMaterial({ color: '#111', roughness: 0.5 }),
+};
+
+function box(w, h, d, m, x, y, z, parent, round = 0) {
+  const g = round ? new RoundedBoxGeometry(w, h, d, 3, round) : new THREE.BoxGeometry(w, h, d);
+  const o = new THREE.Mesh(g, m); o.position.set(x, y, z);
+  o.castShadow = o.receiveShadow = true; parent.add(o); return o;
+}
+function labelTex(txt, dark) {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = dark ? '#e9e7e2' : '#3a3c40';
+  const len = [...txt].length;
+  g.font = `600 ${len > 3 ? 54 : len > 1 ? 70 : 96}px "DejaVu Sans", sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 8; t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
+const loader = new STLLoader();
+const texLoader = new THREE.TextureLoader();
+async function half(side, ox) {
+  const g = new THREE.Group(); g.position.x = ox; scene.add(g);
+  const X = side === 'left' ? (x) => OFF + x : (x) => OUT_W - OFF - x;
+  const Y = (y) => -(OFF + y);
+  const ex = (k) => k * EXPLODE;
+
+  // case
+  const geo = await loader.loadAsync(`bayleaf-case-${side}.stl`);
+  geo.computeVertexNormals();
+  const cs = new THREE.Mesh(geo, mat.alu); cs.castShadow = cs.receiveShadow = true; g.add(cs);
+
+  // PCB: textured top plane + dark bottom plane (alpha keeps cutouts)
+  const tex = await texLoader.loadAsync(`pcb-${side}-top.png`);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 16;
+  const pcb = new THREE.Group(); pcb.position.z = ex(1); g.add(pcb);
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(BW, BH),
+    new THREE.MeshStandardMaterial({ map: tex, alphaTest: 0.5, roughness: 0.45, metalness: 0.15 }));
+  top.position.set(OFF + BW / 2, -(OFF + BH / 2), TOP); top.receiveShadow = true; pcb.add(top);
+  const bot = new THREE.Mesh(new THREE.PlaneGeometry(BW, BH),
+    new THREE.MeshStandardMaterial({ map: tex, color: '#000', alphaTest: 0.5, side: THREE.BackSide }));
+  bot.position.set(OFF + BW / 2, -(OFF + BH / 2), PCB_Z); pcb.add(bot);
+
+  // switches + diodes (on PCB), keycaps
+  const sws = new THREE.Group(); sws.position.z = ex(2); g.add(sws);
+  const caps = new THREE.Group(); caps.position.z = ex(3.2); g.add(caps);
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
+    const x = 11 + 18 * c, y = 10.75 + 17 * r;
+    box(13.5, 13.0, 0.35, mat.swFrame, X(x), Y(y), TOP + 0.18, sws);
+    box(11.6, 11.0, 1.0, mat.sw, X(x), Y(y), TOP + 0.85, sws);
+    box(0.9, 1.7, 0.9, mat.black, X(x + 9), Y(y - 1), TOP + 0.45, pcb);
+    const col = side === 'left' ? c : 6 + (5 - c);  // right half: c=0 is the outer (rightmost) column
+    const txt = LABELS[r][col];
+    const m = ACCENT.has(txt) ? mat.capAcc : DARK.has(txt) ? mat.capDark : mat.cap;
+    const cap = box(16.05, 16.25, 1.3, m, X(x), Y(y), 3.75, caps, 0.45);
+    const lp = new THREE.Mesh(new THREE.PlaneGeometry(9, 9),
+      new THREE.MeshBasicMaterial({ map: labelTex(txt, m !== mat.cap), transparent: true, toneMapped: false }));
+    lp.position.set(X(x), Y(y), 4.46); caps.add(lp);
+  }
+  // nice!nano
+  const nano = new THREE.Group(); nano.position.z = ex(1.6); g.add(nano);
+  const nx = X(123), ny = Y(0.6 + 33.3 / 2);
+  box(18, 33.3, 1.0, mat.nano, nx, ny, TOP + 0.5, nano);
+  box(10, 10, 1.6, mat.shield, nx, ny + 3, TOP + 1.8, nano, 0.2);         // radio module can
+  box(8.9, 7.3, 3.2, mat.shield, nx, Y(0.6 + 3.2), TOP + 1.0, nano, 0.6); // mid-mount USB-C
+  for (let i = 0; i < 12; i++) for (const dx of [-7.62, 7.62]) {
+    const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.12, 16), mat.shield);
+    pin.rotation.x = Math.PI / 2; pin.position.set(nx + dx, Y(0.6 + 2.71 + 2.54 * i), TOP + 1.06); nano.add(pin);
+  }
+  // reset + power switch
+  box(5.1, 5.1, 1.0, mat.shield, X(118.6), Y(37.6), TOP + 0.5, pcb);
+  box(2.2, 2.2, 1.5, mat.black, X(118.6), Y(37.6), TOP + 0.75, pcb);
+  box(3.0, 6.7, 1.4, mat.shield, X(133.6), Y(39.6), TOP + 0.7, pcb);
+  box(1.6, 1.2, 1.0, mat.black, X(135.9), Y(39.6), TOP + 0.7, pcb);
+  // battery (sits on floor in the bay)
+  const bat = new THREE.Group(); bat.position.z = ex(0.55); g.add(bat);
+  box(20, 40, 3.0, mat.bat, X(112.9 + 10), Y(47 + 20), FLOOR + 1.5, bat, 0.8);
+  box(18, 30, 0.05, mat.batLabel, X(112.9 + 10), Y(47 + 22), FLOOR + 3.03, bat);
+  return g;
+}
+
+const halves = (P.halves || 'left,right').split(',');
+const x0 = halves.length === 2 ? 0 : 0;
+for (const [i, s] of halves.entries()) await half(s, i * (OUT_W + GAP));
+const spanX = halves.length === 2 ? 2 * OUT_W + GAP : OUT_W;
+
+// ground plane with soft shadow
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.ShadowMaterial({ opacity: 0.18 }));
+ground.position.z = -0.01; ground.receiveShadow = true; scene.add(ground);
+
+const cam = new THREE.PerspectiveCamera(+P.fov || 30, W / H, 1, 5000);
+cam.up.set(0, 0, 1);
+const tgt = new THREE.Vector3(+(P.tx ?? spanX / 2), +(P.ty ?? -OUT_H / 2), +(P.tz ?? 2));
+const [cx, cy, cz] = (P.cam || `${spanX / 2},${-OUT_H / 2 - 330},260`).split(',').map(Number);
+cam.position.set(cx, cy, cz); cam.lookAt(tgt);
+cam.near = Math.max(1, cam.position.distanceTo(tgt) / 8); cam.updateProjectionMatrix();
+sun.target.position.copy(tgt);
+renderer.render(scene, cam);
+window.__done = true;
+</script></body></html>

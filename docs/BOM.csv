@@ -13,6 +13,7 @@ Item,Qty (both halves),Designators (per half),Part,Specification / part number,W
 12,8,-,Feet,"Clear silicone bumpons, 6-8 mm dia, <= 1.5 mm tall",Amazon / hobby shops,0.40,3.20,
 13,1,-,Shipping,"PCB order + switches/keycaps + controllers",-,35.00,35.00,Very rough; depends on country and shipping speed
 ,,,,,,,,
+,,,ELECTRONICS ONLY (items 1-2, 4-8),,,,164.20,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"
 ,,,TOTAL (aluminium case),,,,421.40,"Single build, parts incl. spares; excludes tools"
 ,,,TOTAL (MJF printed case),,,,266.40,"Same, with ~$25 of printed cases instead of $180 CNC"
 ,,,Optional: JLCPCB assembly of D1-D30 + SW31 + SW32,,,,40.00,"~$20 per design (setup + extended-part fees), saves soldering 64 small parts"

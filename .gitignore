@@ -6,3 +6,6 @@ fp-info-cache
 hardware/pcb/logs/
 __pycache__/
 build/
+node_modules/
+docs/render3d/*.png
+docs/render3d/*.stl
