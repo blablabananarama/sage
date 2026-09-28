@@ -10,14 +10,15 @@ This is an open, buildable re-creation of Sebastian Graz's [Bayleaf](https://www
 |---|---|
 | ![front: frame curving up to the controller lid, USB-C](docs/img/3d/front.jpg) | ![both halves](docs/img/3d/hero.jpg) |
 | ![exploded: lid, shell, keycaps, switches, PCB, bottom plate, screws](docs/img/3d/exploded.jpg) | ![inside: PCB with the nice!nano, battery and switches](docs/img/3d/inside.jpg) |
+| ![end view: the frame wedges down toward the front](docs/img/3d/side.jpg) | ![controller corner: lid, USB-C, bend](docs/img/3d/closeup.jpg) |
 | ![top view](docs/img/3d/top.jpg) | ![with the default keymap as legends](docs/img/3d/legends.jpg) |
 
-*Renders are generated from the actual STEP files and the routed PCB artwork (`docs/render3d/render.sh`). The case follows the original's MK5 drawing for the plan view and its build photos for the heights: a silver shell with a 3.8 mm frame around blank keycaps, a separate contrast-colour lid over the controller (the 5 mm tallest point), and a screwed-on bottom plate.*
+*Renders are generated from the actual STEP files and the routed PCB artwork (`docs/render3d/render.sh`). The case follows the original's MK5 drawing for the plan view and its build photos for the heights: a silver shell with two soft bends (the frame dips toward the front edge, and that dip fades out in an S-curve up to the controller lid), blank keycaps, a separate contrast-colour lid over the controller (the 5 mm tallest point), and a screwed-on bottom plate.*
 
 | | Original Bayleaf (published) | This reproduction |
 |---|---|---|
 | Layout | 60 % ortholinear split | 2 × 5 rows × 6 columns, 17 × 17 mm pitch |
-| Size per half | 139 × 93 mm; "tallest part is only 5 mm" | 139.4 × 96.8 mm base; 3.8 mm frame over the keys, 5.0 mm at the controller lid |
+| Size per half | 139 × 93 mm; "tallest part is only 5 mm" | 139.4 × 96.8 mm base. The frame is 4.1 mm at the back and curves down to 3.1 mm at the front; 5.0 mm at the controller lid |
 | Weight | 180 g | ~186 g estimated (shell 9 g + lid 6 g + plate 28 g of 6061 per half) |
 | Switches | Kailh PG1316S | Kailh PG1316S, reflow-soldered |
 | Keycaps | custom MJF prints | stock Kailh PG1316S 1U caps (16 × 16 mm) |
@@ -92,8 +93,8 @@ The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted
 * The PG1316S footprint follows the Kailh datasheet land pattern. Its contact-pad coordinates were cross-checked against the dimensions Mike Holscher published for his working [mikefive](https://github.com/mikeholscher/zmk-config-mikefive) build. Still, print the board 1:1 and check a real switch against it before ordering.
 * The nice!nano is soldered flush, without sockets, to reach 5 mm. Flash and test it **before** soldering it down.
 * The LCSC part numbers in the BOM are well-known parts, but check stock before ordering.
-* **Case vs. the original.** The plan view comes from the MK5 drawing and the heights from the build photos ("tallest part is only 5 mm"). The overall depth (4.2 mm border all round), the curve and the keycap height (~4.4 mm, about 0.6 mm proud of the frame) are my estimates. [docs/case-drawing.md](docs/case-drawing.md) marks which numbers come from where.
+* **Case vs. the original.** The plan view comes from the MK5 drawing and the heights from the build photos ("tallest part is only 5 mm"). The overall depth (4.2 mm border all round), the exact bend heights (3.1 → 4.1 mm, the drawing's proportions scaled to 5 mm) and the keycap height (~4.4 mm) are my estimates. [docs/case-drawing.md](docs/case-drawing.md) marks which numbers come from where.
   * The two posts beside the USB port are moved 1.6 mm outward, so they don't land on the nice!nano's pins.
-  * All threads are 2 mm deep; the drawing's 3 mm ones don't fit under 5 mm.
+  * Threads are 2 mm deep (1.1 mm under the low front-left corner); the drawing's 3 mm ones don't fit under 5 mm.
   * The lid is held by 0.1 mm tape. The photos show no screws on it, and I couldn't tell how the original fixes it.
 * **Radio.** The nice!nano sits under an aluminium lid. BLE range may suffer, which is a known trade-off of full-metal cases. The firmware already uses +8 dBm TX power, and a printed or acrylic lid avoids the problem.

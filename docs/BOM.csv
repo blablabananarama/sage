@@ -11,7 +11,7 @@ Item,Qty (both halves),Designators (per half),Part,Specification / part number,W
 10,1 roll each,-,Double-sided tape,0.1 mm tape for the lid (3M 467MP / Nitto 5000NS) + thin foam tape for the battery,Amazon / hobby shops,10.00,10.00,
 11,1 roll + 1 sheet,-,Kapton,Polyimide tape + 0.05 mm film,Amazon / hobby shops,5.00,5.00,Film goes between PCB and bottom plate; tape under the nice!nano
 12,8,-,Feet,"Clear silicone bumpons, 6-8 mm dia, <= 1.5 mm tall",Amazon / hobby shops,0.40,3.20,
-13,14,-,Screws,"M2 x 3, thin/wafer head (head <= 0.5 mm, dia 4 mm), e.g. laptop screw assortment",Amazon / AliExpress,0.40,5.60,"7 per half, into the shell posts; see docs/case-drawing.md"
+13,12 + 2,-,Screws,"M2 x 3 (12x) and M2 x 2 (2x), thin/wafer head (head <= 0.5 mm, dia 4 mm), e.g. laptop screw assortment",Amazon / AliExpress,0.40,5.60,"7 per half, into the shell posts; see docs/case-drawing.md"
 14,1,-,Shipping,PCB order + switches/keycaps + controllers,-,35.00,35.00,Very rough; depends on country and shipping speed
 ,,,,,,,,
 ,,,ELECTRONICS ONLY (items 1-2 and 4-8),,,,164.60,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"

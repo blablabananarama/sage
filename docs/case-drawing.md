@@ -21,7 +21,8 @@ A finished half weighs about 93 g with the electronics, so about 186 g for the p
 4.2 mm  underside of the lid (0.1 mm tape on the shell's wall tops)
 4.1 mm  shell walls around the controller bay
 ~4.4 mm keycap tops (PG1316S + stock cap on a 0.8 mm PCB)
-3.8 mm  frame around the keys [D]; toward the controller it curves up to 4.1 mm
+4.1 mm  frame at the back of the key area
+3.1 mm  frame at the front edge of the key area (the drawing's 3.8 / 6.2 proportion, scaled to the 5 mm total)
 ~4.0 mm top of the nice!nano (only ~2.4 mm of its 3.2 mm sits above the PCB; the USB-C shell hangs into a PCB notch)
 1.6 mm  PCB top
 0.8 mm  bottom plate top
@@ -31,23 +32,28 @@ A finished half weighs about 93 g with the electronics, so about 186 g for the p
 
 * **Top outline:** 137 mm wide **[D]**. The walls are drafted, so the base is 1.19 mm larger per side **[D]**. The depth is assumed to be 86 + 2 × 4.2 = 94.4 mm.
 * **Key window:** 103 × 86 mm **[D]**, 4.2 mm from the edge **[D]**.
-* **Frame:** 0.8 mm skin, 3.8 mm tall **[D]**. From x ≈ 78 mm it curves up to 4.1 mm where the lid starts **[D]/[P]**.
+* **Two soft bends [D]/[P]:**
+  * Front to back: the frame is 4.1 mm tall at the back and curves down to 3.1 mm along the front edge, over the front 24 mm (the drawing's side views).
+  * Toward the controller: between x ≈ 72 and 101 mm that front dip fades out in a second S-curve (section A), so the front face rises to meet the lid, as in the photos.
+  * Both curves are smoothstep blends. The outer top edge has a 0.5 mm round (the drawing shows a 0.61 mm chamfer).
+* **Frame skin:** 0.8 mm.
 * **Divider:** 2 mm **[D]**. It stops 1.2 mm above the PCB so the SMD parts pass underneath.
 * **Controller bay:** 27 mm **[D]**, open on top and closed by the lid.
 * **Bottom plate seat:** a rabbet 1.0 mm wide × 0.8 mm deep, leaving a 1 mm wall at the base **[D]**.
 * **USB-C:** an open-top 10 mm slot in the front wall of the bay (the lid closes it).
 * **Power switch:** a 4.4 mm slot in the inner side wall.
 
-### Posts: M2×0.4 6H, blind from below, 2 mm deep, Ø2.4 × 90° countersink [D]
+### Posts: M2×0.4 6H, blind from below, Ø2.4 × 90° countersink [D]
 
-| Qty | Position (x, y from the back-left corner of the top outline) | Post | Note |
-|---|---|---|---|
-| 2 | (2.9, 3.5), (2.9, 90.9) | Ø6 | key-frame corners **[D]** |
-| 2 | (113.68, 3.5), (131.72, 3.5), 18.037 ±0.1 apart | Ø6 | back of the bay **[D]** |
-| 1 | (109.5, 47.2) | Ø6 | middle of the divider **[D]** |
-| 2 | (111.45, 90.9), (133.95, 90.9) | Ø4 | front of the bay, flanking the USB-C. **Moved:** the drawing's pair is 19.039 mm apart, which would sit on the nice!nano's pins. |
+| Qty | Position (x, y from the back-left corner of the top outline) | Post | Thread | Note |
+|---|---|---|---|---|
+| 1 | (2.9, 3.5) | Ø6 | 2 mm | back key-frame corner **[D]** |
+| 1 | (2.9, 90.9) | Ø6 | **1.1 mm** | front key-frame corner **[D]**, under the 3.1 mm front edge |
+| 2 | (113.68, 3.5), (131.72, 3.5), 18.037 ±0.1 apart | Ø6 | 2 mm | back of the bay **[D]** |
+| 1 | (109.5, 47.2) | Ø6 | 2 mm | middle of the divider **[D]** |
+| 2 | (111.45, 90.9), (133.95, 90.9) | Ø4 | 2 mm | front of the bay, flanking the USB-C. **Moved:** the drawing's pair is 19.039 mm apart, which would sit on the nice!nano's pins. |
 
-The posts come down onto the PCB, and the bay posts also carry the lid. The drawing's 3 mm-deep threads don't fit under a 5 mm-tall keyboard, so all seven are 2 mm deep. The STEP models them at the Ø1.6 mm tap-drill size; give the shop the thread callout.
+The posts come down onto the PCB, and the bay posts also carry the lid. The drawing's 3 mm-deep threads don't fit under a 5 mm-tall keyboard. `case.py` sizes each thread to leave 0.5 mm of material above it. The STEP models them at the Ø1.6 mm tap-drill size; give the shop the thread callout.
 
 ## Lid
 
@@ -67,6 +73,7 @@ The screws go up through the bottom plate and the PCB into the posts, so the pos
 
 | Qty per half | Screw |
 |---|---|
-| 7 | M2 × 3, thin/wafer head (Ø4 × ≤ 0.5 mm head, "laptop screw") |
+| 6 | M2 × 3, thin/wafer head (Ø4 × ≤ 0.5 mm head, "laptop screw") |
+| 1 | M2 × 2, thin/wafer head, for the front key-frame corner |
 
 Put 0.05 mm Kapton film between the bottom plate and the PCB, so the bottom-layer traces never rest directly on aluminium.

@@ -40,8 +40,15 @@ TOTAL_H = 5.0                  # [P] tallest point = top of the lid
 LID_T = 0.8
 TAPE_T = 0.1                   # double-sided tape under the lid
 H_BAY = TOTAL_H - LID_T - TAPE_T   # 4.1 shell wall height around the controller bay
-H_KEYS = 3.8                   # [D] frame height over the keys; keycaps stand ~0.6 mm proud of it [P]
-RISE_X = (78.0, DIV_X)         # [D]/[P] the frame curves up from H_KEYS to H_BAY over this x range
+# Two soft bends shape the top ([D] side views + section A, [P] photos):
+#  - along y: the frame is H_BAY at the back and curves down to H_FRONT along the front edge
+#  - along x: toward the controller end that front dip fades out again, so the front face rises
+#    in an S-curve to meet the lid
+# Heights are the drawing's 3.8 / 6.2 proportions scaled to the photographed 5 mm total.
+H_FRONT = 3.1                  # frame at the front edge of the key area
+FRONT_RAMP = 24.0              # [D] depth of the front bend
+RAMP_X = (72.0, 101.0)         # [D] section A: x range over which the front dip fades out
+EDGE_R = 0.5                   # soft outer top edge (drawing: 0.61 chamfer)
 SKIN = 0.8                     # frame thickness over the key area
 WALL_IN = 0.8                  # inner cavity inset from the top outline (gives the 27 mm bay [D])
 RABBET_W, PLATE_T = 1.0, 0.8   # [D] bottom-plate rabbet: leaves a 1 mm wall at the base
@@ -54,7 +61,7 @@ RIB_BOTTOM = PCB_TOP + 1.2     # divider stops above the SMD parts
 # ---------------------------------------------------------------- posts (x, y, diameter)
 # [D] positions: key-frame corners, back pair 18.037 apart, divider middle, front pair. The front pair
 # (19.039 apart in the drawing) would sit on the nice!nano's pin rows, so it moves to the bay corners.
-# Thread: M2x0.4 x 2 mm blind from below in all seven (the posts are 1.4 - 2.5 mm tall + skin).
+# Thread: M2x0.4 blind from below, 2 mm deep where the surface allows (see thread_depth()).
 BOSSES = [
     (2.9, 3.5, 6.0),
     (2.9, TOP_H - 3.5, 6.0),
@@ -64,8 +71,9 @@ BOSSES = [
     (BAY_X0 + 2.25, TOP_H - 3.5, 4.0),
     (BAY_X1 - 2.25, TOP_H - 3.5, 4.0),
 ]
-THREAD_D = 2.0
+THREAD_MAX = 2.0
 TAP_DRILL = 1.6
+MIN_TOP_SKIN = 0.5             # material left above a blind thread
 
 # ---------------------------------------------------------------- openings (from the PCB layout)
 USB_X = BAY_CX                 # nice!nano centred in the bay, USB-C facing the front
@@ -97,15 +105,35 @@ def cyl(x, y, d, z0, dz):
     return cq.Workplane("XY").workplane(offset=z0).center(x, -y).circle(d / 2).extrude(dz)
 
 
+def top_z(x, y):
+    """Analytic top-surface height (same blend as height_profile)."""
+    x0, x1 = RAMP_X
+    t = 1 - smooth((x - x0) / (x1 - x0))
+    return H_BAY - (H_BAY - H_FRONT) * t * smooth((y - (TOP_H - FRONT_RAMP)) / FRONT_RAMP)
+
+
+def thread_depth(x, y):
+    """Blind M2 thread from the PCB plane, as deep as the surface above allows (max 2 mm)."""
+    return round(min(THREAD_MAX, top_z(x, y) - PCB_TOP - MIN_TOP_SKIN), 1)
+
+
 def height_profile(dz=0.0):
-    """Solid whose top is the shell's top surface (optionally lowered by dz): flat H_KEYS over the
-    keys, an S-curve up to H_BAY toward the controller end, flat H_BAY over the bay."""
-    x0, x1 = RISE_X
-    pts = [(x0 + (x1 - x0) * k / 12, H_KEYS + (H_BAY - H_KEYS) * smooth(k / 12) - dz) for k in range(13)]
-    wp = (cq.Workplane("XZ").moveTo(-10, -2).lineTo(-10, H_KEYS - dz).lineTo(x0, H_KEYS - dz)
-          .spline(pts[1:], includeCurrent=True).lineTo(BASE_W + 10, H_BAY - dz).lineTo(BASE_W + 10, -2).close())
-    # XZ workplane extrudes toward -Y (= toward the front in shell coords): cover y -10 .. TOP_H + 10
-    return wp.extrude(TOP_H + 20).translate((0, 10, 0))
+    """Solid whose top is the shell's top surface (optionally lowered by dz): a loft through
+    y-z sections whose front dip (H_BAY -> H_FRONT over FRONT_RAMP) fades out along x."""
+    def section(x, t):
+        t = max(t, 0.002)
+        pl = cq.Plane(origin=(x, 0, 0), xDir=(0, 1, 0), normal=(1, 0, 0))
+        y_r = TOP_H - FRONT_RAMP
+        pts = [(-(y_r + FRONT_RAMP * k / 12), H_BAY - dz - (H_BAY - H_FRONT) * t * smooth(k / 12))
+               for k in range(13)]
+        wp = (cq.Workplane(pl).moveTo(10, -2).lineTo(10, H_BAY - dz).lineTo(-y_r, H_BAY - dz)
+              .spline(pts[1:], includeCurrent=True).lineTo(-(TOP_H + 10), pts[-1][1])
+              .lineTo(-(TOP_H + 10), -2).close())
+        return wp.wires().val()
+    x0, x1 = RAMP_X
+    stations = [(-10, 1.0), (x0, 1.0)] + [(x0 + (x1 - x0) * k / 10, 1 - smooth(k / 10)) for k in range(1, 11)] \
+        + [(BASE_W + 10, 0.0)]
+    return cq.Workplane().add(cq.Solid.makeLoft([section(x, t) for x, t in stations], True))
 
 
 def outer_body():
@@ -118,6 +146,11 @@ def outer_body():
 def build_shell(side="left"):
     outer = outer_body()
     body = outer.intersect(height_profile())
+    try:                                   # soften the outer top edge
+        top_edges = cq.selectors.BoxSelector((-5, -TOP_H - 5, 2.5), (TOP_W + 5, 5, H_BAY + 1))
+        body = body.edges(top_edges).fillet(EDGE_R)
+    except Exception as e:                 # OCC occasionally refuses on the blended surface
+        print("edge fillet skipped:", e)
 
     cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
     # under the key frame: hollow up to 0.8 mm below the top surface
@@ -136,7 +169,7 @@ def build_shell(side="left"):
 
     body = body.cut(prism(BORDER, BORDER, WIN_W, WIN_H, -1, H_BAY + 2, 1.0))            # key window
     for x, y, _ in BOSSES:
-        body = body.cut(cyl(x, y, TAP_DRILL, PCB_TOP - 0.1, THREAD_D + 0.1))
+        body = body.cut(cyl(x, y, TAP_DRILL, PCB_TOP - 0.1, thread_depth(x, y) + 0.1))
         body = body.cut(cq.Workplane("XY").workplane(offset=PCB_TOP).center(x, -y)
                         .circle(1.2).workplane(offset=0.4).circle(TAP_DRILL / 2).loft())  # 2.4 x 90 deg [D]
     body = body.cut(prism(USB_X - USB_W / 2, TOP_H - 3, USB_W, 6, PLATE_T, H_BAY, 1.2))  # USB-C (U-slot)
@@ -177,6 +210,8 @@ def build_plate(side="left"):
 def main():
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
     os.makedirs(out, exist_ok=True)
+    for x, y, d in BOSSES:
+        print(f"post ({x:.2f}, {y:.2f}) dia {d:g}: M2 thread {thread_depth(x, y)} mm deep")
     for side in ("left", "right"):
         for name, part in (("shell", build_shell(side)), ("lid", build_lid(side)), ("plate", build_plate(side))):
             base = os.path.join(out, f"bayleaf-{name}-{side}")

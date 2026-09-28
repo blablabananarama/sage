@@ -9,12 +9,12 @@ Do these steps once per half. They're written for the left half; the right half 
 ```
 5.0 mm ┬ top of the lid over the controller bay: the tallest point
 4.2 mm ┼ lid underside (0.8 mm lid on 0.1 mm tape)
-~4.4   │ keycap tops, about 0.6 mm proud of the 3.8 mm frame
-4.1 mm ┼ shell walls around the bay (the frame curves up to this from 3.8 mm)
+~4.4   │ keycap tops
+4.1 mm ┼ shell at the back and around the bay; the frame curves down to 3.1 mm along the front edge
 ~4.0   │ top of the nice!nano; 3.0 mm LiPo on the bottom plate beside it
 1.6 mm ┼ PCB top: the shell's posts press down here
 0.8 mm ┼ PCB (0.8 mm FR4) on 0.05 mm Kapton film
-0.0 mm ┴ bottom plate (0.8 mm aluminium), flush in the shell's rabbet; 7 × M2×3 screws come up through it
+0.0 mm ┴ bottom plate (0.8 mm aluminium), flush in the shell's rabbet; 7 thin-head M2 screws come up through it
 ```
 
 ## 1. Diodes (skip if JLC assembled them)
@@ -59,7 +59,7 @@ Solder SW31 (tact switch, next to the controller) and SW32 (slide switch on the 
 1. Lay the shell upside down on a soft cloth.
 2. Drop the PCB in, keys down, so the switches go into the key window, USB-C into the front slot of the bay, and the power-switch lever into the side slot. The 7 holes in the PCB line up with the shell's posts.
 3. Put the 0.05 mm Kapton film on the back of the PCB. Stick the battery to the bottom plate where it will meet the cell, then drop the plate into the rabbet.
-4. Screw in the 7 × M2×3 thin-head screws. Snug, not tight: the posts clamp the PCB.
+4. Screw in the thin-head screws: M2×2 in the front key-frame corner (its thread is only 1.1 mm deep), M2×3 in the other six. Snug, not tight: the posts clamp the PCB.
 5. Turn it over. Put 0.1 mm double-sided tape on the tops of the bay walls, the divider and the four posts in the bay. Press the lid on, flush with the outer edges.
 6. Snap on the 30 keycaps and stick 4 bumpons under each half.
 

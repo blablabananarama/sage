@@ -37,14 +37,14 @@ The switches (PG1316S) and the nice!nano are not placed by JLC. You solder them 
 
 ## 3. Case (top shell + lid + bottom plate)
 
-The case follows the original's MK5 drawing for the plan view and the build photos for the heights: 5.0 mm at the tallest point (the lid), and a 3.8 mm frame around the keys. See [case-drawing.md](case-drawing.md) for all dimensions and what I changed.
+The case follows the original's MK5 drawing for the plan view and the build photos for the heights and soft bends: 5.0 mm at the tallest point (the lid), and a frame that is 4.1 mm at the back, curving down to 3.1 mm along the front edge. See [case-drawing.md](case-drawing.md) for all dimensions and what I changed.
 
 * Upload `hardware/case/out/bayleaf-shell-{left,right}.step`, `bayleaf-lid-{left,right}.step` and `bayleaf-plate-{left,right}.step` to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each.
   * Material: 6061-T6. Finish: bead blast + anodise. For the original's look, anodise the shell and plate silver/clear and the lids in a contrast colour (it's blue in the photos).
-  * Threads: 7 × M2×0.4, blind, 2 mm deep per shell, cut up from the bottom into the posts. Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
+  * Threads: 7 × M2×0.4, blind, cut up from the bottom into the posts: six 2 mm deep, and one 1.1 mm deep (front key-frame corner). Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
   * Rough cost: shell $70–110, lid $10–20, plate $15–30, per half.
-* **Printed (budget) option:** the same STEP files print in MJF PA12 or SLS nylon for about $15–25 per half. Use self-tapping M2 screws.
-* **Screws:** 14 × M2×3 with a thin (≤ 0.5 mm) wafer head, e.g. a laptop-screw assortment.
+* **Printed (budget) option:** the same STEP files (with their curved surfaces, so they print well) come out in MJF PA12 or SLS nylon for about $15–25 per half. Use self-tapping M2 screws.
+* **Screws:** 12 × M2×3 and 2 × M2×2 with a thin (≤ 0.5 mm) wafer head, e.g. a laptop-screw assortment.
 
 ## 4. Consumables
 
