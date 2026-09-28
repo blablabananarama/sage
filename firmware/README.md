@@ -1,7 +1,7 @@
 # Bayleaf firmware (ZMK)
 
 * `boards/shields/bayleaf/` holds the shield: the matrix (`bayleaf.dtsi`), left/right overlays and Kconfig.
-* `config/` holds the user keymap (`bayleaf.keymap`), `bayleaf.conf` and the west manifest (ZMK `main`).
+* `bayleaf.keymap`, `bayleaf.conf` and `west.yml` (in `firmware/` itself) hold the user keymap , user Kconfig overrides and the west manifest (ZMK `main`).
 * `build.yaml` is the build matrix. It builds left, right and `settings_reset` for `nice_nano//zmk` (nice!nano v2).
 
 GitHub Actions (`.github/workflows/firmware.yml`) builds everything on every push that touches `firmware/`. Download the `bayleaf-firmware` artifact from the run.
@@ -22,7 +22,7 @@ Lower has symbols and F-keys, Raise has numbers and navigation, and Lower+Raise 
 ## Local build
 
 ```sh
-west init -l firmware/config && west update && west zephyr-export
-west build -s zmk/app -d build/left  -b nice_nano//zmk -- -DSHIELD=bayleaf_left  -DZMK_CONFIG=$PWD/firmware/config -DZMK_EXTRA_MODULES=$PWD
-west build -s zmk/app -d build/right -b nice_nano//zmk -- -DSHIELD=bayleaf_right -DZMK_CONFIG=$PWD/firmware/config -DZMK_EXTRA_MODULES=$PWD
+west init -l firmware && west update && west zephyr-export
+west build -s zmk/app -d build/left  -b nice_nano//zmk -- -DSHIELD=bayleaf_left  -DZMK_CONFIG=$PWD/firmware -DZMK_EXTRA_MODULES=$PWD
+west build -s zmk/app -d build/right -b nice_nano//zmk -- -DSHIELD=bayleaf_right -DZMK_CONFIG=$PWD/firmware -DZMK_EXTRA_MODULES=$PWD
 ```
