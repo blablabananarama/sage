@@ -7,10 +7,13 @@ import * as THREE from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const P = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
 const W = +P.w || 2000, H = +P.h || 1250;
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+// clip=<y>: cut the whole scene at world y = clip (keep the front part) to show section profiles
+if (P.clip !== undefined) renderer.clippingPlanes = [new THREE.Plane(new THREE.Vector3(0, -1, 0), +P.clip)];
 renderer.setPixelRatio(1); renderer.setSize(W, H);
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(P.exp || 0.78);
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -75,7 +78,8 @@ function labelTex(txt, dark) {
 const loader = new STLLoader();
 const texLoader = new THREE.TextureLoader();
 async function stl(name, m, parent) {
-  const geo = await loader.loadAsync(name); geo.computeVertexNormals();
+  // smooth shading across curved faces (rounds, S-bends), sharp across real edges
+  const geo = toCreasedNormals(await loader.loadAsync(name), Math.PI / 7);
   const o = new THREE.Mesh(geo, m); o.castShadow = o.receiveShadow = true; parent.add(o); return o;
 }
 async function half(side, ox, style = '') {

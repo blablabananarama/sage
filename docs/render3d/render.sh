@@ -20,22 +20,39 @@ node shoot.mjs '{
 "top":"w=2400&h=950&cam=174,-48.2,1500&tx=174&ty=-47.2&tz=0&fov=5.9&bg=%23f4f5f6",
 "legends":"legends=1&w=2400&h=1250&cam=174,-400,250&tx=174&ty=-44&tz=0&fov=30",
 "bottom":"halves=left&w=2200&h=1300&cam=150,-210,-170&tx=70&ty=-47&tz=0&fov=34&exp=1.1",
-"cmp-a":"halves=left&w=1600&h=1000&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
-"cmp-b":"halves=left&styles=-chamfer&w=1600&h=1000&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
-"cmp-c":"halves=left&w=1600&h=1000&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
-"cmp-d":"halves=left&styles=-chamfer&w=1600&h=1000&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22"
+"v_backq_draft":"halves=left&styles=&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
+"v_backq_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
+"v_backq_round":"halves=left&styles=-round&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
+"v_frontq_draft":"halves=left&styles=&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
+"v_frontq_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
+"v_frontq_round":"halves=left&styles=-round&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
+"v_corner_draft":"halves=left&styles=&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
+"v_corner_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
+"v_corner_round":"halves=left&styles=-round&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
+"v_frontcorner_draft":"halves=left&styles=&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
+"v_frontcorner_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
+"v_frontcorner_round":"halves=left&styles=-round&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22"
 }'
+${CQ_PYTHON:-python3} sections.py   # needs cadquery
 python3 -c "
 from PIL import Image, ImageDraw, ImageFont
 for n in ['hero','desk','back','front','closeup','exploded','inside','top','legends','bottom']:
     Image.open(n + '.png').convert('RGB').save('../img/3d/' + n + '.jpg', quality=88, optimize=True)
-# case variants side by side: drafted walls (default) vs straight walls + chamfer
-out = Image.new('RGB', (3200, 2000), 'white')
-try: font = ImageFont.truetype('DejaVuSans.ttf', 34)
-except OSError: font = ImageFont.load_default()
-for i, (n, label) in enumerate([('cmp-a', 'current: drafted walls'), ('cmp-b', 'straight walls + 0.5 mm chamfer'), ('cmp-c', ''), ('cmp-d', '')]):
-    out.paste(Image.open(n + '.png').convert('RGB'), ((i % 2) * 1600, (i // 2) * 1000))
-    ImageDraw.Draw(out).text(((i % 2) * 1600 + 50, 40), label, fill='#333', font=font)
-out.save('../img/3d/compare.jpg', quality=88, optimize=True)
+# case variants side by side: 4 views each, plus the CAD cross-sections from sections.py
+def F(n):
+    try: return ImageFont.truetype('DejaVuSans.ttf', n)
+    except OSError: return ImageFont.load_default()
+views = [('backq', 'back'), ('frontq', 'front'), ('corner', 'back corner, USB-C'), ('frontcorner', 'front corner')]
+styles = [('draft', 'drafted walls (MK5)'), ('chamfer', 'straight + 0.5 mm chamfer'), ('round', 'straight + rounded edges')]
+sec = Image.open('sections.png').convert('RGB')
+out = Image.new('RGB', (3300, 90 + 4 * 700 + sec.size[1]), 'white'); d = ImageDraw.Draw(out)
+for j, (st, label) in enumerate(styles):
+    d.text((j * 1100 + 40, 28), label, fill='#222', font=F(40))
+for i, (v, label) in enumerate(views):
+    for j, (st, _) in enumerate(styles):
+        out.paste(Image.open(f'v_{v}_{st}.png').convert('RGB'), (j * 1100, 90 + i * 700))
+    d.text((20, 90 + i * 700 + 14), label, fill='#555', font=F(28))
+out.paste(sec, (0, 90 + 4 * 700))
+out.save('../img/3d/compare.jpg', quality=86, optimize=True)
 "
 rm -f *.png *.stl

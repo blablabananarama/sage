@@ -12,7 +12,7 @@ sent through the Bayleaf Case Sketchpad (docs/case-sketchpad-shape.json):
   * the bottom plate (0.8 mm FR4, made as a copper-free PCB) screws into 7 posts and clamps the PCB
   * two wall styles: drafted walls [D] (default) or straight walls with a 45 deg chamfer on the top edge
 
-    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,plate}-{left,right}.{step,stl}
+    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,shell-*-round,plate}-{left,right}.{step,stl}
 
 Coordinates ("shell coords"): x to the right, y toward the typist (front), origin at the back-left
 corner of the 137 x 94.4 top outline. CadQuery Y = -y. Right half = mirror image.
@@ -47,6 +47,7 @@ RABBET_W, PLATE_T = 1.0, 0.8   # [D] bottom-plate rabbet: leaves a 1 mm wall at 
 WIN_R = 2.0                    # [S] rounded inside corners of the key window
 MILL_R = 1.65                  # smallest inside corner radius (SendCutSend: >= 1/16" = 1.59 mm)
 CHAMFER = 0.5                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
+ROUND_OUT, ROUND_WIN = 1.5, 0.8  # "round" variant: straight walls, outer top edge / key-window edge rounded over
 
 # ---------------------------------------------------------------- stack-up inside
 PCB_OFF = WALL_IN + 0.25       # PCB origin in shell coords (0.25 mm clearance to the cavity wall)
@@ -216,11 +217,64 @@ def pocket_outline(with_divider):
     return opening(s.faces("<Z").vals(), MILL_R)
 
 
+def window_dist(x, y):
+    """Signed distance to the key window (rounded rectangle): positive outside it (on the frame)."""
+    x0, y0, x1, y1, r = BORDER, BORDER, BORDER + WIN_W, BORDER + WIN_H, WIN_R
+    dx, dy = max(x0 + r - x, x - (x1 - r)), max(y0 + r - y, y - (y1 - r))
+    return math.hypot(max(dx, 0), max(dy, 0)) + min(max(dx, dy), 0) - r
+
+
+def _roundover(d, r):
+    """Height offset of a quarter-round of radius r on an edge, d = distance in from the edge."""
+    if d <= 0:
+        return -r + d
+    if d < r:
+        return -r + math.sqrt(r * r - (r - d) ** 2)
+    return min((d - r) ** 2 / r, 3.0)
+
+
+def round_field():
+    """Solid under the top surface with both top edges rounded over: the outer edge (ROUND_OUT) and the
+    key-window edge (ROUND_WIN). Like chamfer_field(), a height field that follows the blended surface;
+    sections are dense (0.15 mm) where the rounds are."""
+    def near(lo, hi, step=0.15):
+        return [lo + step * k for k in range(int(round((hi - lo) / step)) + 1)]
+
+    def coarse(lo, hi, bend):
+        return [v for v in [lo + 5 * k for k in range(int((hi - lo) / 5) + 1)] + bend if lo < v < hi]
+    xb = [PLATEAU_X0 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)]
+    yb = [PLATEAU_Y1 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)]
+    ro, rw = ROUND_OUT + 0.4, ROUND_WIN + 0.4
+    xw0, xw1, yw0, yw1 = BORDER, BORDER + WIN_W, BORDER, BORDER + WIN_H
+    rc = R_TOP + DRAFT + ro          # the outline's plan-view corners curve in this far: sample them densely
+    xs = (near(-DRAFT - 1.5, -DRAFT + rc) + near(xw0 - rw, xw0 + 0.3) + coarse(xw0 + 1, xw1 - 1, xb)
+          + near(xw1 - 0.3, xw1 + rw) + coarse(xw1 + rw + 1, TOP_W + DRAFT - rc - 1, xb)
+          + near(TOP_W + DRAFT - rc, TOP_W + DRAFT + 1.5))
+    ys = (near(-DRAFT - 1.5, -DRAFT + rc) + near(yw0 - rw, yw0 + 0.3) + coarse(yw0 + 1, yw1 - 1, yb)
+          + near(yw1 - 0.3, yw1 + rw) + near(TOP_H + DRAFT - rc, TOP_H + DRAFT + 1.5))
+    def spaced(vals, gap=0.1):                     # near-coincident sections break the booleans
+        out = []
+        for v in sorted(vals):
+            if not out or v - out[-1] >= gap:
+                out.append(v)
+        return out
+    xs, ys = spaced(xs), spaced(ys)
+
+    def fn(x, y):
+        t = top_z(x, y)
+        # clamp: inside the key window (cut away anyway) the field must stay above the section's floor
+        return max(t + min(_roundover(inward_dist(x, y), ROUND_OUT), _roundover(window_dist(x, y), ROUND_WIN)),
+                   -0.5)
+    return height_field(fn, xs, ys)
+
+
 def build_shell(side="left", style="draft"):
     outer = outer_body(style)
     body = outer.intersect(height_profile())
     if style == "chamfer":
         body = body.intersect(chamfer_field())
+    elif style == "round":
+        body = body.intersect(round_field())
 
     cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
     rabbet = prism(WALL_IN - RABBET_W, WALL_IN - RABBET_W, cav_w + 2 * RABBET_W, cav_h + 2 * RABBET_W,
@@ -271,6 +325,7 @@ def main():
     for side in ("left", "right"):
         for name, part in ((f"shell-{side}", build_shell(side)),
                            (f"shell-{side}-chamfer", build_shell(side, "chamfer")),
+                           (f"shell-{side}-round", build_shell(side, "round")),
                            (f"plate-{side}", build_plate(side))):
             base = os.path.join(out, f"bayleaf-{name}")
             cq.exporters.export(part, base + ".step")

@@ -70,14 +70,16 @@ The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit unde
 
 ## Wall variants
 
-`case.py` writes two shells from the same top surface. They fit the same PCB, bottom plate and screws. [Side by side](img/3d/compare.jpg):
+`case.py` writes three shells from the same top surface. They fit the same PCB, bottom plate and screws. See the [side-by-side comparison, with cross-sections](img/3d/compare.jpg).
 
-| | Default (`bayleaf-shell-*`) | Chamfer (`bayleaf-shell-*-chamfer`) |
-|---|---|---|
-| Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 corners |
-| Top edge | sharp | 0.5 mm × 45° chamfer following the rim, the S-bends and the plateau (`CHAMFER` in `case.py`) |
+| | Default (`bayleaf-shell-*`) | Chamfer (`…-chamfer`) | Round (`…-round`) |
+|---|---|---|---|
+| Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 plan corners | same as chamfer |
+| Outer top edge | sharp | 0.5 mm × 45° chamfer (`CHAMFER`) | quarter-round R1.5 (`ROUND_OUT`) |
+| Key-window edge | sharp | sharp | quarter-round R0.8 (`ROUND_WIN`) |
+| Weight | ≈ 15 g | ≈ 17 g | ≈ 16 g |
 
-The chamfer is cut as a second height field (`chamfer_field()`): the top surface lowered by 0.5 mm plus the distance in from the outline. So it keeps a constant 45° across the bends and runs around the corners. OCC's own chamfer can't handle the blended top surface.
+The chamfer and the rounds are cut as a second height field (`chamfer_field()` / `round_field()`): the top surface, lowered by the edge profile as a function of the distance in from the outline or the key window. So the edge keeps its profile across the S-bends and runs around the plan-view corners. OCC's own chamfer and fillet can't handle the blended top surface. For the round variant, the height field is sampled every 0.15 mm near the edges, which leaves facets of well under 0.1 mm.
 
 ## Bottom plate
 
