@@ -43,7 +43,7 @@ const DARK = new Set(['Tab','Ctrl','Shift','Gui','Alt','Lower','Raise','Bksp','D
 
 const mat = {
   alu: new THREE.MeshStandardMaterial({ color: P.alu || '#b4b7bc', metalness: 0.8, roughness: 0.38 }),
-  plate: new THREE.MeshStandardMaterial({ color: P.alu || '#b4b7bc', metalness: 0.75, roughness: 0.5 }),
+  plate: new THREE.MeshStandardMaterial({ color: '#141518', metalness: 0.05, roughness: 0.55 }),   // FR4, black mask
   cap: new THREE.MeshStandardMaterial({ color: P.legends ? '#dcd9d2' : '#eceae6', roughness: 0.65 }),
   capDark: new THREE.MeshStandardMaterial({ color: '#4a4d52', roughness: 0.62 }),
   capAcc: new THREE.MeshStandardMaterial({ color: '#d9822b', roughness: 0.6 }),
@@ -135,7 +135,7 @@ async function half(side, ox, style = '') {
     const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.12, 16), mat.shield);
     pin.rotation.x = Math.PI / 2; pin.position.set(nx + dx, Y(P_(0.4 + 2.71 + 2.54 * i)), TOP + 1.06); nano.add(pin);
   }
-  box(2.8, 4.2, 1.9, mat.shield, X(P_(110.15)), Y(P_(22.0)), TOP + 0.95, pcb);       // KMR2 reset
+  box(2.8, 4.2, 1.9, mat.shield, X(P_(109.0)), Y(P_(22.0)), PCB_Z - 0.95, pcb);        // KMR2 reset, on the bottom
   // LiPo 302030 in the PCB window, on the bottom plate
   const bat = grp(0.55);
   box(20, 30, 3.0, mat.bat, X(P_(121.65)), Y(P_(50.4)), PLATE_T + 1.5, bat, 0.8);

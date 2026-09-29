@@ -39,7 +39,7 @@ On each half, columns are numbered left → right, so the right half's COL0 is i
  LiPo + ── BT1.1 ── nice!nano RAW/B+   (no power switch; ZMK deep sleep after 15 min idle)
  LiPo − ── BT1.2 ── GND ── nice!nano GND (2 pins wired; the third, B−, is tied internally)
 
- nice!nano RST ── SW31 (KMR2 tact switch) ── GND   double-tap → UF2 bootloader
+ nice!nano RST ── SW31 (KMR2 tact switch, bottom side) ── GND   double-tap → UF2 bootloader
 ```
 
 The nice!nano handles charging over its own USB-C port, battery protection and 3.3 V regulation. There is no other active circuitry on the board.
@@ -47,7 +47,9 @@ The nice!nano handles charging over its own USB-C port, battery protection and 3
 ## Mechanical notes that affect the circuit
 
 * The nice!nano is soldered flush on the top side. Traces run under it on both layers, protected by soldermask; put a piece of Kapton on the PCB there before soldering it down.
-* The nice!nano's USB-C faces the back edge. The mid-mount receptacle hangs about 1.1 mm below the nice!nano, into a notch in the PCB's back edge; the bottom plate has a 0.4 mm relief below it.
+* The nice!nano's USB-C faces the back edge. The mid-mount receptacle hangs about 1.1 mm below the nice!nano, into a notch in the PCB's back edge; the bottom plate has a notch below it.
 * The 302030 cell sits in a window in the PCB in front of the controller, on the bottom plate.
 * The seven aluminium bosses of the case press on the top of the PCB. Keep-out zones keep top copper and vias away from them, and the M2 screws pass through 2.2 mm non-plated holes.
 * The PG1316S frame pads (`MP`) are not connected to anything. They are solder anchors only.
+* The PG1316S contacts (pads 1/2) are **castellated half-holes** on the front edge of a window under each switch, so they're soldered from below with an iron; the autorouter treats the windows as keep-outs.
+* The reset button SW31 is the only part on the bottom side. It sits in a window of the FR4 bottom plate.

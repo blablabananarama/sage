@@ -19,6 +19,7 @@ node shoot.mjs '{
 "inside":"halves=left&noshell=1&w=2000&h=1300&cam=180,-190,150&tx=90&ty=-50&tz=0&fov=34",
 "top":"w=2400&h=950&cam=174,-48.2,1500&tx=174&ty=-47.2&tz=0&fov=5.9&bg=%23f4f5f6",
 "legends":"legends=1&w=2400&h=1250&cam=174,-400,250&tx=174&ty=-44&tz=0&fov=30",
+"bottom":"halves=left&w=2200&h=1300&cam=150,-210,-170&tx=70&ty=-47&tz=0&fov=34&exp=1.1",
 "cmp-a":"halves=left&w=1600&h=1000&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "cmp-b":"halves=left&styles=-chamfer&w=1600&h=1000&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "cmp-c":"halves=left&w=1600&h=1000&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
@@ -26,7 +27,7 @@ node shoot.mjs '{
 }'
 python3 -c "
 from PIL import Image, ImageDraw, ImageFont
-for n in ['hero','desk','back','front','closeup','exploded','inside','top','legends']:
+for n in ['hero','desk','back','front','closeup','exploded','inside','top','legends','bottom']:
     Image.open(n + '.png').convert('RGB').save('../img/3d/' + n + '.jpg', quality=88, optimize=True)
 # case variants side by side: drafted walls (default) vs straight walls + chamfer
 out = Image.new('RGB', (3200, 2000), 'white')

@@ -9,7 +9,7 @@ sent through the Bayleaf Case Sketchpad (docs/case-sketchpad-shape.json):
   * the plateau is a rectangle (x >= 96.5, y <= 76 mm) whose two inner edges blend into the rim
     through soft S-bends 16.5 mm wide (10-90 %), i.e. a separable Gaussian-blurred step
   * the controller bay is closed by the shell itself (0.8 mm roof); USB-C exits the back wall
-  * the bottom plate (0.8 mm) screws into 7 posts and clamps the PCB
+  * the bottom plate (0.8 mm FR4, made as a copper-free PCB) screws into 7 posts and clamps the PCB
   * two wall styles: drafted walls [D] (default) or straight walls with a 45 deg chamfer on the top edge
 
     /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,plate}-{left,right}.{step,stl}
@@ -74,7 +74,6 @@ MIN_TOP_SKIN = 0.5             # material left above a blind thread
 USB_X = BAY_CX - 0.3           # nice!nano (0.3 mm toward the divider), USB-C facing the back
 USB_ZC = PCB_TOP + 0.5         # mid-mount receptacle: centred on the nice!nano's 1 mm board
 USB_W, USB_H = 9.7, 3.9        # obround opening = 8.94 x 3.26 receptacle + ~0.35 all round (z 0.15..4.05)
-RESET_PIN = (PCB_OFF + 110.15, PCB_OFF + 22.0, 1.6)   # paper-clip hole through the roof
 
 
 def rrect_wire(w, h, r, cx, cy, z):
@@ -247,27 +246,21 @@ def build_shell(side="left", style="draft"):
         body = body.cut(cq.Workplane("XY").workplane(offset=PCB_TOP).center(x, -y)
                         .circle(1.2).workplane(offset=0.4).circle(TAP_DRILL / 2).loft())  # 2.4 x 90 deg [D]
     body = body.cut(usb_opening(-4, 4 + WALL_IN))                                        # USB-C, back wall
-    body = body.cut(cyl(RESET_PIN[0], RESET_PIN[1], RESET_PIN[2], 0, H_HIGH + 1))        # reset pin-hole
     if side == "right":
         body = body.mirror("YZ", basePointVector=(TOP_W / 2, 0, 0))
     return body
 
 
 def build_plate(side="left"):
-    gap = 0.05
-    w = TOP_W - 2 * WALL_IN + 2 * RABBET_W - 2 * gap
-    h = TOP_H - 2 * WALL_IN + 2 * RABBET_W - 2 * gap
-    x0 = WALL_IN - RABBET_W + gap
-    plate = prism(x0, x0, w, h, 0, PLATE_T, R_TOP - WALL_IN + RABBET_W - gap)
-    for x, y, _ in BOSSES:
-        plate = plate.cut(cyl(x, y, 2.2, -1, 3))
-        plate = plate.cut(cyl(x, y, 4.2, -1, 1.5))        # counterbore 0.5 deep for thin-head M2 screws
-    # relief under the mid-mount USB-C receptacle (it hangs ~1.1 mm below the nice!nano)
-    plate = plate.cut(prism(USB_X - 5.75, 0.5, 11.5, 9, PLATE_T - 0.4, 1, 0.6))
-    plate = plate.cut(usb_opening(-4, 5))    # the opening's lower curve continues into the plate edge
-    if side == "right":
-        plate = plate.mirror("YZ", basePointVector=(TOP_W / 2, 0, 0))
-    return plate
+    """The bottom plate is a copper-free 0.8 mm FR4 board (radio-transparent), generated with the PCBs by
+    hardware/pcb/generate_pcb.py. Its outline fills the rabbet (0.05 mm gap); here it is only brought into
+    shell coords for the STEP/STL and the renders. KiCad's STEP export ignores the 0.8 mm thickness, so the
+    plate is re-extruded from its bottom face."""
+    step = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "pcb", "fab", f"plate-{side}",
+                        f"bayleaf-plate-{side}.step")
+    face = cq.importers.importStep(step).faces("<Z").val()
+    plate = cq.Solid.extrudeLinear(face, cq.Vector(0, 0, PLATE_T))
+    return cq.Workplane().add(plate.translate(cq.Vector(PCB_OFF, -PCB_OFF, -face.Center().z)))
 
 
 def main():
@@ -286,7 +279,8 @@ def main():
             zmax = max(p.z for p in part.val().tessellate(0.01)[0])   # OCC's box is padded
             vol = part.val().Volume() / 1000
             print(f"{name}: {bb.xlen:.1f} x {bb.ylen:.1f} mm footprint, {zmax:.2f} mm tall, "
-                  f"{vol:.2f} cm3 = {vol * 2.70:.0f} g (6061)")
+                  f"{vol:.2f} cm3 = " + (f"{vol * 1.85:.0f} g (FR4)" if name.startswith("plate") else
+                                         f"{vol * 2.70:.0f} g (6061)"))
 
 
 if __name__ == "__main__":

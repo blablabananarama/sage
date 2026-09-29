@@ -9,7 +9,10 @@ reproducible from source. Routing is done with Freerouting (set FREEROUTING_JAR)
 
 Coordinate system: KiCad (x right, y down), origin at the top-left corner of the
 left-half PCB. The right half is the mirror image (x -> BOARD_W - x); footprints
-are *not* flipped because every part sits on the top side.
+are *not* flipped: everything but the reset button sits on the top side.
+
+Also generates the FR4 bottom plates (bayleaf-plate-{left,right}.kicad_pcb): copper-free 0.8 mm
+boards that close the case from below and let the radio out.
 """
 import argparse
 import math
@@ -42,7 +45,7 @@ NANO_ROT = 0
 USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle (back edge)
 BAT_CUT = (111.15, 34.9, 132.15, 65.9)   # x0, y0, x1, y1 - closed LiPo window (3.0 x 20 x 30 cell)
 BAT_PADS = (132.75, 28.25)               # beside the nice!nano, "+" toward the back
-RESET = (110.15, 22.0)                   # KMR2 in the strip beside the nano; pin-hole in the roof
+RESET = (109.0, 22.0)                    # KMR2 on the *bottom*, pressed through a window in the plate
 # Shell bosses (PCB coords): x, y, boss diameter. Each gets a 2.2 mm hole; M2 screws come up through
 # the bottom plate and the PCB, so the bosses clamp the board. Must match BOSSES in case.py.
 BOSSES = [(1.85, 2.45, 6.0), (1.85, 89.85, 6.0), (110.15, 2.45, 4.0), (132.90, 2.45, 4.0),
@@ -89,7 +92,7 @@ class Builder:
             self.nets[name] = n
         return self.nets[name]
 
-    def place(self, lib, name, ref, x, y, rot=0, value=None):
+    def place(self, lib, name, ref, x, y, rot=0, value=None, bottom=False):
         fp = pcbnew.FootprintLoad(lib, name)
         if fp is None:
             sys.exit(f"footprint {lib}:{name} not found")
@@ -104,6 +107,8 @@ class Builder:
         if self.side == "right" and rot in (90, -90):
             rot = -rot
         fp.SetOrientationDegrees(rot)
+        if bottom:
+            fp.Flip(fp.GetPosition(), False)
         return fp
 
     def connect(self, fp, pad_name, net_name):
@@ -204,7 +209,7 @@ class Builder:
             for c in range(COLS):
                 x = KEY_X0 + c * PITCH_X
                 y = KEY_Y0 + r * PITCH_Y
-                sw = self.place(LIB, "Kailh_PG1316S", f"SW{idx}", x, y, value="PG1316S")
+                sw = self.place(LIB, "Kailh_PG1316S_castellated", f"SW{idx}", x, y, value="PG1316S")
                 d = self.place(f"{KICAD_FP}/Diode_SMD.pretty", "D_SOD-523", f"D{idx}",
                                x + DIODE_DX, y + DIODE_DY, rot=90, value="1N4148WT")
                 # right half: physical column index counted left -> right on that half
@@ -235,14 +240,14 @@ class Builder:
         self.connect(bt, "2", "GND")
 
         rst = self.place(f"{KICAD_FP}/Button_Switch_SMD.pretty", "SW_Push_1P1T_NO_CK_KMR2",
-                         "SW31", *RESET, rot=90, value="KMR211NGLFS")
+                         "SW31", *RESET, rot=90, value="KMR211NGLFS", bottom=True)
         self.connect(rst, "1", "RST")
         self.connect(rst, "2", "GND")
 
 
         self.text("BAYLEAF", 56, 40, 4.0, pcbnew.B_SilkS)
         self.text(f"{self.side} half - rev 1", 56, 47, 1.5, pcbnew.B_SilkS)
-        self.text("RST", RESET[0], RESET[1] - 4.2, 0.8)
+        self.text("RST", RESET[0], RESET[1] - 4.2, 0.8, pcbnew.B_SilkS)
         self.text("LiPo 3.0x20x30", 121.65, 50.0, 0.9, pcbnew.Cmts_User)
         for i, (x, y, d) in enumerate(BOSSES):
             h = self.place(f"{KICAD_FP}/MountingHole.pretty", "MountingHole_2.2mm_M2", f"H{i + 1}", x, y,
@@ -273,6 +278,88 @@ class Builder:
     def save(self, path):
         self.board.BuildConnectivity()
         pcbnew.SaveBoard(path, self.board)
+
+
+# ---------------------------------------------------------------- FR4 bottom plate
+# Shell coords = PCB coords + 1.05; the plate fills the shell's rabbet (case.py build_plate()).
+PLATE = (-1.2, -1.2, 136.1, 93.5, 3.15)       # x0, y0, x1, y1, corner radius (PCB coords)
+PLATE_USB_W, PLATE_USB_D = 9.7, 7.5          # notch under the USB-C receptacle (it hangs 0.3 mm into the plate)
+SWITCH_RELIEF = (-4.3, -1.0, 4.3, 4.2)       # window under each switch's contact half-holes (solder bulges)
+NANO_PIN_SLOT = (2.2, 1.8, 32.4)             # width, y0, y1 of the windows under the two nice!nano pin rows
+RESET_WINDOW = (3.9, 6.1)                    # KMR2 (on the PCB's bottom) stands in this window
+
+
+class PlateBuilder(Builder):
+    def rrect(self, x0, y0, x1, y1, r):
+        """Rounded-rectangle cutout (left-half coords, mirrored for the right half)."""
+        x0, x1 = sorted((self.X(x0), self.X(x1)))
+        pts = [((x0 + r, y0), (x1 - r, y0)), ((x1, y0 + r), (x1, y1 - r)),
+               ((x1 - r, y1), (x0 + r, y1)), ((x0, y1 - r), (x0, y0 + r))]
+        corners = [((x1 - r, y0 + r), (x1 - r, y0)), ((x1 - r, y1 - r), (x1, y1 - r)),
+                   ((x0 + r, y1 - r), (x0 + r, y1)), ((x0 + r, y0 + r), (x0, y0 + r))]
+        for (a, b), (c, st) in zip(pts, corners):
+            self.seg(pcbnew.Edge_Cuts, a, b)
+            self.arc(c, st, 90)
+
+    def plate(self):
+        x0, y0, x1, y1, r = PLATE
+        ux0, ux1 = NANO_X - PLATE_USB_W / 2, NANO_X + PLATE_USB_W / 2
+        uy = PLATE_USB_D
+        poly = [(x0 + r, y0), (ux0, y0), (ux0, uy), (ux1, uy), (ux1, y0), (x1 - r, y0), None,
+                (x1, y0 + r), (x1, y1 - r), None, (x1 - r, y1), (x0 + r, y1), None,
+                (x0, y1 - r), (x0, y0 + r), None]
+        corners = {6: ((x1 - r, y0 + r), (x1 - r, y0)), 9: ((x1 - r, y1 - r), (x1, y1 - r)),
+                   12: ((x0 + r, y1 - r), (x0 + r, y1)), 15: ((x0 + r, y0 + r), (x0, y0 + r))}
+        prev = None
+        for i, p in enumerate(poly + [poly[0]]):
+            if p is None:
+                c, st = corners[i]
+                self.arc((self.X(c[0]), c[1]), (self.X(st[0]), st[1]), 90 if self.side == "left" else -90)
+                prev = None
+                continue
+            if prev is not None:
+                self.seg(pcbnew.Edge_Cuts, (self.X(prev[0]), prev[1]), (self.X(p[0]), p[1]))
+            prev = p
+        sx0, sy0, sx1, sy1 = SWITCH_RELIEF
+        for row in range(ROWS):
+            for col in range(COLS):
+                x, y = KEY_X0 + col * PITCH_X, KEY_Y0 + row * PITCH_Y
+                self.rrect(x + sx0, y + sy0, x + sx1, y + sy1, 1.0)
+        w, ya, yb = NANO_PIN_SLOT
+        for dx in (-7.62, 7.62):
+            self.rrect(NANO_X + dx - w / 2, ya, NANO_X + dx + w / 2, yb, w / 2 - 0.01)
+        rw, rh = RESET_WINDOW
+        self.rrect(RESET[0] - rw / 2, RESET[1] - rh / 2, RESET[0] + rw / 2, RESET[1] + rh / 2, 0.8)
+        for i, (x, y, _) in enumerate(BOSSES):
+            h = self.place(f"{KICAD_FP}/MountingHole.pretty", "MountingHole_2.2mm_M2", f"H{i + 1}", x, y)
+            for g in list(h.GraphicalItems()):
+                if g.GetLayer() in (pcbnew.F_CrtYd, pcbnew.F_SilkS, pcbnew.F_Fab):
+                    h.Remove(g)
+        # no copper at all: the plate must stay transparent to the 2.4 GHz radio
+        self.text("bayleaf", 56, 22.2, 5.0, pcbnew.B_SilkS)
+        self.text(f"{self.side} - FR4 bottom plate, no copper", 56, 39.2, 1.2, pcbnew.B_SilkS)
+
+
+def build_plate(side):
+    b = PlateBuilder(side)
+    b.plate()
+    path = os.path.join(HERE, f"bayleaf-plate-{side}.kicad_pcb")
+    b.save(path)
+    out = os.path.join(HERE, "fab", f"plate-{side}")
+    shutil.rmtree(out, ignore_errors=True)
+    os.makedirs(out)
+    g = tempfile.mkdtemp()
+    run(["kicad-cli", "pcb", "export", "gerbers", "--layers", "F.Cu,B.Cu,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts",
+         "--subtract-soldermask", "--no-x2", "--use-drill-file-origin", "-o", g + "/", path])
+    run(["kicad-cli", "pcb", "export", "drill", "--format", "excellon", "--excellon-separate-th",
+         "-o", g + "/", path])
+    shutil.make_archive(os.path.join(out, f"bayleaf-plate-{side}-gerbers"), "zip", g)
+    shutil.rmtree(g)
+    run(["kicad-cli", "pcb", "export", "step", "--force", "--user-origin", "0x0mm", "--board-only",
+         "-o", os.path.join(out, f"bayleaf-plate-{side}.step"), path], stdout=subprocess.DEVNULL)
+    rpt = os.path.join(out, f"bayleaf-plate-{side}-drc.rpt")
+    pcbnew.WriteDRCReport(pcbnew.LoadBoard(path), rpt, pcbnew.EDA_UNITS_MILLIMETRES, True)
+    return rpt
 
 
 def run(cmd, **kw):
@@ -373,11 +460,43 @@ def prune_dangling(board):
         removed += len(stubs)
 
 
+def notch_switch_windows(dsn):
+    """The switch contacts are castellated half-holes whose centres lie on the edge of the window under each
+    switch. Freerouting can't start a route inside a keepout, so for routing only, each window's keepout gets
+    a notch around the two contact pads (the notches only open onto the pads, so no trace can cross the
+    window; the real board keeps the plain window)."""
+    import re
+    text = open(dsn).read()
+    pat = re.compile(r'\(keepout "" \(polygon signal 0 ([-\d.\s]+)\)\)')
+
+    def repl(m):
+        v = [float(t) for t in m.group(1).split()]
+        xs, ys = [x / 1000 for x in v[0::2]], [-y / 1000 for y in v[1::2]]   # um -> mm, board y
+        if not (abs(max(xs) - min(xs) - 8.0) < 0.05 and abs(max(ys) - min(ys) - 3.4) < 0.05):
+            return m.group(0)                                                 # not a switch window
+        cx, y0, y1 = (max(xs) + min(xs)) / 2, min(ys), max(ys)
+        # the front edge is pushed 0.3 mm out, so no trace can run along the real window edge
+        rn, dy = 1.35, 0.3
+        a0 = math.asin(dy / rn)
+        pts = [(cx - 4, y0), (cx + 4, y0), (cx + 4, y1 + dy)]
+        for px in (cx + 1.55, cx - 1.55):                                     # walk the front edge right -> left
+            for k in range(15):
+                a = -a0 + (math.pi + 2 * a0) * k / 14
+                pts.append((px + rn * math.cos(a), y1 - rn * math.sin(a)))
+        pts.append((cx - 4, y1 + dy))
+        coords = " ".join(f"{x * 1000:.1f} {-y * 1000:.1f}" for x, y in pts)
+        return f'(keepout "" (polygon signal 0 {coords}))'
+
+    text, n = pat.subn(repl, text)
+    open(dsn, "w").write(text)
+
+
 def route(pcb_path, attempts=10):
     base = pcb_path[:-10]
     dsn, ses = base + ".dsn", base + ".ses"
     board = pcbnew.LoadBoard(pcb_path)
     assert pcbnew.ExportSpecctraDSN(board, dsn), "DSN export failed"
+    notch_switch_windows(dsn)
     for attempt in range(1, attempts + 1):
         workdir = tempfile.mkdtemp()  # freerouting drops a logs/ folder in its cwd
         run(["java", "-jar", FREEROUTING_JAR, "--gui.enabled=false",
@@ -403,7 +522,6 @@ def route(pcb_path, attempts=10):
 # LCSC numbers: check stock before ordering.
 JLC_PARTS = {
     "D_SOD-523": ("1N4148WT", ""),  # pick any 1N4148WT/SOD-523 in JLC's parts search
-    "SW_Push_1P1T_NO_CK_KMR2": ("KMR211NGLFS", ""),  # C&K KMR2 4.2 x 2.8 mm; pick a stocked KMR2 in JLC
 }
 
 
@@ -466,9 +584,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-route", action="store_true")
     ap.add_argument("--side", choices=["left", "right", "both"], default="both")
+    ap.add_argument("--plates-only", action="store_true", help="only (re)build the FR4 bottom plates")
     args = ap.parse_args()
     sides = ["left", "right"] if args.side == "both" else [args.side]
     for side in sides:
+        rpt = build_plate(side)
+        print(open(rpt).read().split("** Found")[1:])
+        if args.plates_only:
+            continue
         b = Builder(side)
         b.outline()
         b.parts()

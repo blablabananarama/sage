@@ -2,7 +2,7 @@
 
 Do these steps once per half. They're written for the left half; the right half is the mirror image. Plan on 2–3 hours per half if you place the diodes by hand.
 
-**Tools:** small hotplate (a 50 × 50 mm plate is fine; you reflow a few switches at a time), fine-tip iron, tweezers, flux, low-temp paste (Sn42Bi58), Kapton tape, flush cutters, multimeter.
+**Tools:** small hotplate (a Miniware MHP30 or a cheap 50 × 50 mm plate: you do one or a few switches at a time; no reflow oven needed), fine-tip iron, thin solder wire, tweezers, flux, low-temp paste (Sn42Bi58), Kapton tape, flush cutters, multimeter.
 
 ## Stack-up
 
@@ -12,8 +12,9 @@ Do these steps once per half. They're written for the left half; the right half 
 ~4.0   │ top of the nice!nano; 3.0 mm LiPo on the bottom plate in front of it
 3.2 mm ┼ rim around the keys and along the front; S-bends join it to the plateau
 1.6 mm ┼ PCB top: the shell's posts press down here
-0.8 mm ┼ PCB (0.8 mm FR4) on 0.05 mm Kapton film
-0.0 mm ┴ bottom plate (0.8 mm aluminium), flush in the shell's rabbet; 7 thin-head M2 screws come up through it
+0.8 mm ┼ PCB (0.8 mm FR4, castellated half-holes under each switch; reset button on its underside)
+0.0 mm ┴ bottom plate (0.8 mm FR4, no copper), flush in the shell's rabbet; 7 thin-head M2 screws come up through it
+-1.1   │ reset button, standing in a window of the plate (the 1.5 mm feet keep it off the desk)
 ```
 
 ## 1. Diodes (skip if JLC assembled them)
@@ -24,14 +25,15 @@ Do these steps once per half. They're written for the left half; the right half 
 
 ## 2. Switches
 
-1. Apply paste to the two contact pads **and** the four square frame pads of each footprint. A stencil makes this trivial; a syringe works too.
-2. Drop each PG1316S in, with the two locating pins in the two small holes. The contacts face the pads near the bottom of the footprint.
-3. Reflow 4–6 switches at a time on the hotplate. With Sn42Bi58, about 170 °C is enough; don't cook the switches. Press each switch gently while the paste is molten so it seats flat.
-4. With a multimeter in continuity mode, check each key: probe the column pin at the nice!nano footprint and the diode's row side, then press the key.
+The PCB uses the hand-solder trick from Mike Holscher's [mikecinq](https://github.com/mikeholscher/zmk-config-mikecinq): under each switch there's a window in the board, and the switch's two contacts sit over plated half-holes on its edge. Only the four frame anchors go on the hotplate; the contacts are soldered from below with an iron, where you can see and redo every joint.
 
-## 3. Reset button
+1. **Frames (hotplate):** put a small blob of paste on the four square frame pads of one footprint (no paste on the round contact pads). Drop the PG1316S in, with the two locating pins in the two small holes, and set that spot of the board on the hotplate. With Sn42Bi58, about 170 °C is enough; press the switch gently while the paste is molten so it seats flat, then let it cool. Do one or a few switches at a time, keycaps **off**.
+2. **Contacts (iron):** turn the board over. In each window you see the switch's two contact legs next to the half-holes. Add flux and flow a little solder wire from the half-hole onto the leg: one short touch (≤ 3 s, the datasheet's iron limit) per contact. Keep the joints small; the bottom plate has a window under each one.
+3. With a multimeter in continuity mode, check each key: probe the column pin at the nice!nano footprint and the diode's row side, then press the key. A dead key is almost always a contact joint, and that one you can just reheat from below.
 
-Solder SW31 (KMR2 tact switch, beside the controller). Skip this if JLC placed it.
+## 3. Reset button (bottom side)
+
+SW31, the KMR2 tact switch, goes on the **underside** of the PCB (silkscreen "RST", beside the controller). Tin one pad, place it with tweezers, solder the other three. It's pressed from below through a window in the bottom plate, so there's no pin-hole in the top of the case.
 
 ## 4. Flash and test the nice!nano *before* soldering it
 
@@ -44,7 +46,7 @@ Solder SW31 (KMR2 tact switch, beside the controller). Skip this if JLC placed i
 1. Cover the PCB area under the controller with a layer of Kapton tape, leaving the 24 holes open (poke through with a needle).
 2. Lay the nice!nano on the board, components up, USB-C over the notch in the back edge of the board.
 3. Push a short piece of 0.5–0.6 mm tinned wire (cut component legs work well) through each nice!nano hole into the PCB hole below. Solder it on the top, then on the bottom.
-4. Cut every pin **flush** on the bottom side. The case floor only has a 0.3 mm relief under the pin rows.
+4. Cut every pin short on the bottom side. The bottom plate has a slot under each pin row, so the joints can stand up to ~0.7 mm.
 
 ## 6. Battery
 
@@ -57,18 +59,18 @@ Solder SW31 (KMR2 tact switch, beside the controller). Skip this if JLC placed i
 
 1. Lay the shell upside down on a soft cloth.
 2. Drop the PCB in, keys down, so the switches go into the key window, and the USB-C into the opening in the back wall. The 7 holes in the PCB line up with the shell's posts.
-3. Put the 0.05 mm Kapton film on the back of the PCB. Stick the battery to the bottom plate where it will meet the cell, then drop the plate into the rabbet.
+3. Stick the battery to the bottom plate where it will meet the cell, then drop the plate into the rabbet, silkscreen out. The reset button drops into its window; the FR4 plate is an insulator, so no film is needed between it and the PCB.
 4. Screw in the thin-head screws: M2×2 in the four posts under the rim (both key-frame corners and the front pair at the bay; their threads are only 1.1 mm deep), M2×3 in the other three (back of the bay, divider). Snug, not tight: the posts clamp the PCB.
 5. Snap on the 30 keycaps and stick 4 bumpons under each half.
 
 ## 8. Pair
 
 1. Both halves start as soon as their cells are connected. They pair with each other automatically; the left half is the BLE "central".
-2. On the computer, pair with **Bayleaf**. The reset button is reachable with a paper clip through the pin-hole in the plateau. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
+2. On the computer, pair with **Bayleaf**. The reset button is on the underside, in the window of the bottom plate. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
 
 ## Troubleshooting
 
 * **A key doesn't register:** usually a switch contact pad that didn't wet. Reflow that switch, or touch up its pads from the side with the iron.
 * **A whole row or column is dead:** check the flush joints on the nice!nano pins.
 * **The halves don't connect:** flash `settings_reset` to both halves, then the real firmware again.
-* **Short range in the aluminium case:** the controller sits under the aluminium roof, so the radio mostly escapes through the key window and the USB window. The firmware already sets TX power to +8 dBm. If range is still poor, a printed (MJF/SLS) shell avoids the problem.
+* **Short range in the aluminium case:** the controller sits under the aluminium roof, so the radio gets out downward through the FR4 bottom plate (keep it copper-free) and through the key window. The firmware already sets TX power to +8 dBm. Don't put the keyboard on a metal desk or laptop palm rest. If range is still poor, a printed (MJF/SLS) shell avoids the problem.
