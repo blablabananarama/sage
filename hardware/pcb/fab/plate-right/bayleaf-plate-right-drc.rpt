@@ -1,10 +1,19 @@
 ** Drc report for /home/user/sage/hardware/pcb/bayleaf-plate-right.kicad_pcb **
-** Created on 2026-09-29 13:36:02 **
+** Created on 2026-09-29 20:34:51 **
 
 ** Found 7 DRC violations **
 [lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
+    @(133.0500 mm, 89.8500 mm): Footprint H2
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(133.0500 mm, 2.4500 mm): Footprint H1
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
     @(4.2300 mm, 89.8500 mm): Footprint H7
+[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
+    Local override; Severity: warning
+    @(22.2700 mm, 89.8500 mm): Footprint H6
 [lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
     @(2.0000 mm, 2.4500 mm): Footprint H4
@@ -14,15 +23,6 @@
 [lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
     Local override; Severity: warning
     @(26.4500 mm, 46.1500 mm): Footprint H5
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(133.0500 mm, 89.8500 mm): Footprint H2
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(133.0500 mm, 2.4500 mm): Footprint H1
-[lib_footprint_issues]: The current configuration does not include the library 'MountingHole'.
-    Local override; Severity: warning
-    @(22.2700 mm, 89.8500 mm): Footprint H6
 
 ** Found 0 unconnected pads **
 

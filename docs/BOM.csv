@@ -1,6 +1,6 @@
 Item,Qty (both halves),Designators (per half),Part,Specification / part number,Where to buy,Unit price USD (est. 2026-09),Line total USD (est.),Notes
 1,2 designs x 5 pcs,-,PCB left + PCB right,"2-layer FR4, 0.8 mm, ENIG, any colour, castellated holes: Yes; gerbers in hardware/pcb/fab/{left,right}/bayleaf-*-gerbers.zip",JLCPCB / PCBWay,30.00,60.00,Price per design incl. ENIG and JLC's castellated-hole fee (~$8 + area); the half-holes let you solder the switch contacts from below with an iron
-2,60 (+4 spare),SW1-SW30,Key switch,"Kailh PG1316S (CPG1316S01D02), pick your weight (25/35/40/60 gf)","beekeeb, keycapsss, holykeebs, modulo.industries",1.00,64.00,"Frame anchors on a small hotplate, contacts by iron through the castellated half-holes (see docs/assembly.md)"
+2,60 (+4 spare),SW1-SW30,Key switch,"Kailh PG1316S (CPG1316S01D02), pick your weight (25/35/40/60 gf)","beekeeb, keycapsss, holykeebs, modulo.industries",1.00,64.00,"Soldered from below with an iron: contacts through castellated half-holes, frame anchors through plated holes (hotplate optional; see docs/assembly.md)"
 3,60,-,Keycap,Kailh PG1316S 1U keycap (16 x 16 mm),"keycapsss, holykeebs, modulo.industries",0.45,27.00,The original build used custom MJF-printed caps; stock Kailh caps fit the same switch
 4,60 (+10 spare),D1-D30,Diode,"1N4148WT, SOD-523 (0.8 mm wide body; fits the 0.95 mm gap between keycaps)",LCSC / JLCPCB assembly,0.02,1.40,"Search ""1N4148WT"" in the LCSC/JLC catalogue; any SOD-523 small-signal diode works"
 5,2,U1,Controller,"nice!nano v2 (nRF52840, mid-mount USB-C, 3.2 mm thick)","nicekeyboards.com, typeractive.xyz, boardsource, mechboards",25.00,50.00,"Soldered flush to the PCB, no headers/sockets"
@@ -19,4 +19,4 @@ Item,Qty (both halves),Designators (per half),Part,Specification / part number,W
 ,,,TOTAL (printed nylon case),,,,308.80,"Same, with ~$30 of MJF/SLS nylon shells instead of CNC aluminium"
 ,,,Optional: JLCPCB assembly of D1-D30,,,,35.00,"~$17 per design (setup + extended-part fee), saves soldering 60 small diodes"
 ,,,Optional: SMT stencils,,,,14.00,One per design (F.Paste layer is in the gerber zip)
-,,,Tools if you have none,"Mini hotplate (e.g. Miniware MHP30 or a cheap 50x50 mm plate), fine-tip iron, low-temp solder paste Sn42Bi58, solder wire, flux, Phillips #00 driver",,,60-120,
+,,,Tools if you have none,"Fine-tip + small chisel-tip iron, optional mini hotplate (e.g. Miniware MHP30), low-temp solder paste Sn42Bi58, solder wire, flux, Phillips #00 driver",,,60-120,

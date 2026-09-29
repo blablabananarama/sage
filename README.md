@@ -23,7 +23,7 @@ This is an open, buildable re-creation of Sebastian Graz's [Bayleaf](https://www
 | Layout | 60 % ortholinear split | 2 × 5 rows × 6 columns, 17 × 17 mm pitch |
 | Size per half | 139 × 93 mm; "tallest part is only 5 mm" | 139.4 × 96.8 mm base. 3.2 mm rim around the keys; 5.0 mm plateau over the controller |
 | Weight | 180 g | ~165 g estimated (15 g aluminium shell + 17 g FR4 plate per half) |
-| Switches | Kailh PG1316S | Kailh PG1316S: frames on a small hotplate, contacts by iron through castellated half-holes (no reflow oven) |
+| Switches | Kailh PG1316S | Kailh PG1316S, soldered from below with an iron: contacts through castellated half-holes, frame anchors through plated holes (a hotplate is optional) |
 | Keycaps | custom MJF prints | stock Kailh PG1316S 1U caps (16 × 16 mm) |
 | Controller | nice!nano, ZMK | nice!nano v2 soldered flush, ZMK (BLE split) |
 | Battery | "over a month" | 302030 LiPo (~120–150 mAh) per half, deep sleep after 15 min |
@@ -72,7 +72,7 @@ These are estimates from September 2026 for a single keyboard, including spares 
 | **Total with aluminium case** | **≈ $449** |
 | **Total with printed nylon case instead** | **≈ $309** |
 
-Optional extras: JLCPCB assembly of the 60 diodes (≈ $35), SMT stencils (≈ $14), and a small hotplate plus low-temp paste if you don't own them (≈ $40–120).
+Optional extras: JLCPCB assembly of the 60 diodes (≈ $35), SMT stencils (≈ $14), and low-temp paste; a small hotplate is optional (≈ $30–120).
 
 Most of the extra units are leftovers you can't avoid: 3 spare PCBs per side at the 5-piece minimum, spare switches, and so on.
 
@@ -80,7 +80,7 @@ Most of the extra units are leftovers you can't avoid: 3 spare PCBs per side at 
 
 1. **Order**: follow [docs/ordering.md](docs/ordering.md). Upload the gerber zips, optionally the JLC BOM/CPL, and the case STEP files. Buy switches, caps, 2 nice!nanos and 2 cells.
 2. **Firmware**: GitHub Actions builds `bayleaf_left`, `bayleaf_right` and `settings_reset` UF2s on every push. See [firmware/README.md](firmware/README.md).
-3. **Assemble**: follow [docs/assembly.md](docs/assembly.md). The rough order is diodes → switch frames (hotplate) and contacts (iron, from below) → reset button (underside) → nice!nano flush → battery → PCB into the shell → bottom plate + 7 screws.
+3. **Assemble**: follow [docs/assembly.md](docs/assembly.md). The rough order is diodes → switches (iron from below: frame anchors, then contacts) → reset button (underside) → nice!nano flush → battery → PCB into the shell → bottom plate + 7 screws.
 
 ## Regenerating the design
 
@@ -97,7 +97,7 @@ The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted
 ## Status and caveats
 
 * **Not yet built.** The design passes DRC and the case was checked against the board in CAD, but no physical prototype exists yet. Order one set of PCBs before ordering in quantity.
-* **Hand-solderable switches.** The PG1316S footprint uses the trick from Mike Holscher's working [mikecinq](https://github.com/mikeholscher/zmk-config-mikecinq): a window in the board under each switch with the two contacts on plated half-holes at its edge, soldered from below with an iron. Only the frame anchors need a (small) hotplate. The footprint is drawn independently from the Kailh land pattern with his proven contact positions; order the PCB with *castellated holes*. Print the board 1:1 and check a real switch against it before ordering.
+* **Hand-solderable switches.** The PG1316S footprint uses the trick from Mike Holscher's working [mikecinq](https://github.com/mikeholscher/zmk-config-mikecinq): a window in the board under each switch, with the two contacts on plated half-holes at its edge, soldered from below with an iron. On top of that, each of the four frame-anchor pads has a plated hole with a bottom pad, so the anchors can be soldered from below too and no hotplate is needed. The anchor holes are **my addition and untested**: solder one switch first and check it holds before doing the rest. The hotplate route still works on the same board. The footprint is drawn independently from the Kailh land pattern, using his proven contact positions. Order the PCB with *castellated holes*, and print it 1:1 to check against a real switch first.
 * The nice!nano is soldered flush, without sockets, to reach 5 mm. Flash and test it **before** soldering it down.
 * The LCSC part numbers in the BOM are well-known parts, but check stock before ordering.
 * **Case vs. the original.** The plan view comes from the MK5 drawing and the top surface from the sketchpad shape (3.2 / 5.0 mm levels, a square-cornered plateau at x ≥ 96.5, y ≤ 76 mm, 16.5 mm S-bends). The overall depth (4.2 mm border all round) and the keycap height (~4.4 mm) are my estimates. [docs/case-drawing.md](docs/case-drawing.md) marks which numbers come from where.

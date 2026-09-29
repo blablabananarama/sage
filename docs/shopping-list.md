@@ -34,7 +34,7 @@ Optional: a stencil for each key PCB in the same JLCPCB order (frame pads and di
 | ☐ | Clear silicone bumpons | 8 | [Amazon (tiny bumpons)](https://www.amazon.com/Self-adhesive-Clear-Rubber-Feet-Bumpons/dp/B001JAW454) | 1.5–2.5 mm tall: taller than the reset button (1.1 mm below the plate) |
 | ☐ | Kapton (polyimide) tape | 1 roll | [Amazon search](https://www.amazon.com/s?k=kapton+tape+10mm) | Under the nice!nano |
 | ☐ | Thin double-sided foam tape | 1 roll | [Amazon search](https://www.amazon.com/s?k=thin+double+sided+foam+tape+1mm) | Holds the battery to the plate |
-| ☐ | Low-temp solder paste Sn42Bi58 (Chip Quik TS391LT) | 1 syringe | [DigiKey](https://www.digikey.com/en/products/detail/chip-quik-inc/TS391LT/7802220) · [Amazon](https://www.amazon.com/Chip-Quik-TS391LT-Thermally-No-Clean/dp/B096BLQQNY) | Frame pads and diodes on the hotplate; no fridge needed |
+| ☐ | Low-temp solder paste Sn42Bi58 (Chip Quik TS391LT) | 1 syringe | [DigiKey](https://www.digikey.com/en/products/detail/chip-quik-inc/TS391LT/7802220) · [Amazon](https://www.amazon.com/Chip-Quik-TS391LT-Thermally-No-Clean/dp/B096BLQQNY) | Under the switch frame anchors (melted from below with the iron) and the diodes; no fridge needed |
 | ☐ | Flux pen (e.g. Chip Quik CQ4LF) | 1 | [DigiKey search](https://www.digikey.com/en/products/result?keywords=CQ4LF) | For the contacts from below |
 | ☐ | Thin solder wire (0.5 mm) | 1 | any | Contacts and nice!nano pins |
 
@@ -42,7 +42,7 @@ Optional: a stencil for each key PCB in the same JLCPCB order (frame pads and di
 
 | ✓ | What | Buy | Notes |
 |---|---|---|---|
-| ☐ | Mini hotplate | [Miniware MHP30 (DFRobot)](https://www.dfrobot.com/product-2530.html) · [welectron (EU)](https://www.welectron.com/Miniware-MHP30-Hot-Plate-Preheater) · [SparkFun](https://www.sparkfun.com/mini-hot-plate-preheater-mhp30.html) | 30 × 30 mm plate does one switch at a time; a cheap 50 × 50 mm plate works too |
-| ☐ | Fine-tip soldering iron, tweezers, flush cutters, multimeter, Phillips #00 driver | any | |
+| ☐ | Mini hotplate (optional) | [Miniware MHP30 (DFRobot)](https://www.dfrobot.com/product-2530.html) · [welectron (EU)](https://www.welectron.com/Miniware-MHP30-Hot-Plate-Preheater) · [SparkFun](https://www.sparkfun.com/mini-hot-plate-preheater-mhp30.html) | Only needed if the iron-only frame-anchor joints don't hold. 30 × 30 mm does one switch at a time |
+| ☐ | Soldering iron with a fine and a small chisel tip (temperature-controlled), tweezers, flush cutters, multimeter, Phillips #00 driver | any | |
 
 The nice!nano and its firmware: see [firmware/README.md](../firmware/README.md). Assembly: [assembly.md](assembly.md).

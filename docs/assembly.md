@@ -2,7 +2,7 @@
 
 Do these steps once per half. They're written for the left half; the right half is the mirror image. Plan on 2–3 hours per half if you place the diodes by hand.
 
-**Tools:** small hotplate (a Miniware MHP30 or a cheap 50 × 50 mm plate: you do one or a few switches at a time; no reflow oven needed), fine-tip iron, thin solder wire, tweezers, flux, low-temp paste (Sn42Bi58), Kapton tape, flush cutters, multimeter.
+**Tools:** a soldering iron with a fine tip and a small chisel tip; optionally a small hotplate for the switch anchors. No reflow oven needed. Also: thin solder wire, tweezers, flux, low-temp paste (Sn42Bi58), Kapton tape, flush cutters, multimeter.
 
 ## Stack-up
 
@@ -25,11 +25,22 @@ Do these steps once per half. They're written for the left half; the right half 
 
 ## 2. Switches
 
-The PCB uses the hand-solder trick from Mike Holscher's [mikecinq](https://github.com/mikeholscher/zmk-config-mikecinq): under each switch there's a window in the board, and the switch's two contacts sit over plated half-holes on its edge. Only the four frame anchors go on the hotplate; the contacts are soldered from below with an iron, where you can see and redo every joint.
+The whole switch can be soldered from below with an iron:
 
-1. **Frames (hotplate):** put a small blob of paste on the four square frame pads of one footprint (no paste on the round contact pads). Drop the PG1316S in, with the two locating pins in the two small holes, and set that spot of the board on the hotplate. With Sn42Bi58, about 170 °C is enough; press the switch gently while the paste is molten so it seats flat, then let it cool. Do one or a few switches at a time, keycaps **off**.
-2. **Contacts (iron):** turn the board over. In each window you see the switch's two contact legs next to the half-holes. Add flux and flow a little solder wire from the half-hole onto the leg: one short touch (≤ 3 s, the datasheet's iron limit) per contact. Keep the joints small; the bottom plate has a window under each one.
-3. With a multimeter in continuity mode, check each key: probe the column pin at the nice!nano footprint and the diode's row side, then press the key. A dead key is almost always a contact joint, and that one you can just reheat from below.
+* The two **contacts** sit over plated half-holes on the edge of a window in the board. This is the hand-solder trick from Mike Holscher's [mikecinq](https://github.com/mikeholscher/zmk-config-mikecinq).
+* The four **frame anchors** each have a 0.7 mm plated hole through their 2 × 2 mm pad, with a 1.4 mm pad on the bottom. Heat from below travels up the hole into the anchor. This part is new and not proven yet, so try one switch first and check it holds before doing the rest.
+
+A hotplate still works for the anchors if you have one (step 1b).
+
+1. **Frames, iron only (1a):**
+   1. Put a small blob of low-temp paste (Sn42Bi58) on each of the four square frame pads. Put no paste on the round contact pads.
+   2. Drop the PG1316S in, keycaps **off**, with the two locating pins in the two small holes.
+   3. Hold the switch flat with a strip of Kapton tape across it, or a small weight.
+   4. Turn the board over. On each anchor's bottom pad, hold a clean, fluxed chisel tip (about 280 °C) until the paste on top melts, 2–3 s. The joint is right when a little solder shows in the hole. If it doesn't, feed a touch of solder wire into the hole.
+   5. Do the diagonal corners first so the switch can't rock.
+2. **Frames, hotplate (1b):** same paste. Set that spot of the board on the hotplate, about 170 °C for Sn42Bi58, and press the switch gently while the paste is molten. The anchor holes wick a little paste down; that's fine.
+3. **Contacts (iron):** turn the board over. In each window you see the switch's two contact legs next to the half-holes. Add flux and flow a little solder wire from the half-hole onto the leg: one short touch (≤ 3 s, the datasheet's iron limit) per contact. Keep the joints small; the bottom plate has a window under each one.
+4. With a multimeter in continuity mode, check each key: probe the column pin at the nice!nano footprint and the diode's row side, then press the key. A dead key is almost always a contact joint, and that one you can just reheat from below. To remove a switch, heat its anchors from below one at a time while levering gently.
 
 ## 3. Reset button (bottom side)
 

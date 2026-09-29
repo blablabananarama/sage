@@ -50,6 +50,6 @@ The nice!nano handles charging over its own USB-C port, battery protection and 3
 * The nice!nano's USB-C faces the back edge. The mid-mount receptacle hangs about 1.1 mm below the nice!nano, into a notch in the PCB's back edge; the bottom plate has a notch below it.
 * The 302030 cell sits in a window in the PCB in front of the controller, on the bottom plate.
 * The seven aluminium bosses of the case press on the top of the PCB. Keep-out zones keep top copper and vias away from them, and the M2 screws pass through 2.2 mm non-plated holes.
-* The PG1316S frame pads (`MP`) are not connected to anything. They are solder anchors only.
+* The PG1316S frame pads (`MP`) are not connected to anything. They are solder anchors only; each has a 0.7 mm plated hole with a 1.4 mm bottom pad, so it can be soldered from below with an iron.
 * The PG1316S contacts (pads 1/2) are **castellated half-holes** on the front edge of a window under each switch, so they're soldered from below with an iron; the autorouter treats the windows as keep-outs.
 * The reset button SW31 is the only part on the bottom side. It sits in a window of the FR4 bottom plate.

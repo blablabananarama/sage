@@ -284,7 +284,9 @@ class Builder:
 # Shell coords = PCB coords + 1.05; the plate fills the shell's rabbet (case.py build_plate()).
 PLATE = (-1.2, -1.2, 136.1, 93.5, 3.15)       # x0, y0, x1, y1, corner radius (PCB coords)
 PLATE_USB_W, PLATE_USB_D = 9.7, 7.5          # notch under the USB-C receptacle (it hangs 0.3 mm into the plate)
-SWITCH_RELIEF = (-4.3, -1.0, 4.3, 4.2)       # window under each switch's contact half-holes (solder bulges)
+SWITCH_WINDOW_HALF_W = 3.6                   # half width of the window in the PCB under each switch (footprint)
+SWITCH_RELIEF = (-4.0, -1.0, 4.0, 4.2)       # window under each switch's contact half-holes (solder bulges)
+ANCHOR_RELIEF = 2.6                          # square window under each of the 4 plated frame-anchor holes
 NANO_PIN_SLOT = (2.2, 1.8, 32.4)             # width, y0, y1 of the windows under the two nice!nano pin rows
 RESET_WINDOW = (3.9, 6.1)                    # KMR2 (on the PCB's bottom) stands in this window
 
@@ -325,6 +327,9 @@ class PlateBuilder(Builder):
             for col in range(COLS):
                 x, y = KEY_X0 + col * PITCH_X, KEY_Y0 + row * PITCH_Y
                 self.rrect(x + sx0, y + sy0, x + sx1, y + sy1, 1.0)
+                a = ANCHOR_RELIEF / 2
+                for ax, ay in ((-6.35, -6), (6.35, -6), (-6.35, 6), (6.35, 6)):
+                    self.rrect(x + ax - a, y + ay - a, x + ax + a, y + ay + a, 0.8)
         w, ya, yb = NANO_PIN_SLOT
         for dx in (-7.62, 7.62):
             self.rrect(NANO_X + dx - w / 2, ya, NANO_X + dx + w / 2, yb, w / 2 - 0.01)
@@ -336,8 +341,8 @@ class PlateBuilder(Builder):
                 if g.GetLayer() in (pcbnew.F_CrtYd, pcbnew.F_SilkS, pcbnew.F_Fab):
                     h.Remove(g)
         # no copper at all: the plate must stay transparent to the 2.4 GHz radio
-        self.text("bayleaf", 56, 22.2, 5.0, pcbnew.B_SilkS)
-        self.text(f"{self.side} - FR4 bottom plate, no copper", 56, 39.2, 1.2, pcbnew.B_SilkS)
+        self.text("bayleaf", 121.0, 72.0, 3.5, pcbnew.B_SilkS)
+        self.text(f"{self.side} - FR4, no copper", 121.0, 78.0, 1.0, pcbnew.B_SilkS)
 
 
 def build_plate(side):
@@ -472,23 +477,34 @@ def notch_switch_windows(dsn):
     def repl(m):
         v = [float(t) for t in m.group(1).split()]
         xs, ys = [x / 1000 for x in v[0::2]], [-y / 1000 for y in v[1::2]]   # um -> mm, board y
-        if not (abs(max(xs) - min(xs) - 8.0) < 0.05 and abs(max(ys) - min(ys) - 3.4) < 0.05):
+        if not (abs(max(xs) - min(xs) - 2 * SWITCH_WINDOW_HALF_W) < 0.05 and abs(max(ys) - min(ys) - 3.4) < 0.05):
             return m.group(0)                                                 # not a switch window
         cx, y0, y1 = (max(xs) + min(xs)) / 2, min(ys), max(ys)
-        # the front edge is pushed 0.3 mm out, so no trace can run along the real window edge
-        rn, dy = 1.35, 0.3
+        # dy > 0 would push the front edge out, but it chokes Freerouting; route() instead rejects any
+        # attempt that leaves copper on a window edge
+        rn, dy = 1.35, 0.0
         a0 = math.asin(dy / rn)
-        pts = [(cx - 4, y0), (cx + 4, y0), (cx + 4, y1 + dy)]
+        w = SWITCH_WINDOW_HALF_W
+        pts = [(cx - w, y0), (cx + w, y0), (cx + w, y1 + dy)]
         for px in (cx + 1.55, cx - 1.55):                                     # walk the front edge right -> left
             for k in range(15):
                 a = -a0 + (math.pi + 2 * a0) * k / 14
                 pts.append((px + rn * math.cos(a), y1 - rn * math.sin(a)))
-        pts.append((cx - 4, y1 + dy))
+        pts.append((cx - w, y1 + dy))
         coords = " ".join(f"{x * 1000:.1f} {-y * 1000:.1f}" for x, y in pts)
         return f'(keepout "" (polygon signal 0 {coords}))'
 
     text, n = pat.subn(repl, text)
     open(dsn, "w").write(text)
+
+
+def edge_violations(board):
+    """Number of copper-to-board-edge DRC errors (a trace running along a switch window's edge)."""
+    rpt = tempfile.mktemp(suffix=".rpt")
+    pcbnew.WriteDRCReport(board, rpt, pcbnew.EDA_UNITS_MILLIMETRES, False)
+    n = open(rpt).read().count("[copper_edge_clearance]")
+    os.remove(rpt)
+    return n
 
 
 def route(pcb_path, attempts=10):
@@ -508,11 +524,12 @@ def route(pcb_path, attempts=10):
         stubs = prune_dangling(board)
         board.BuildConnectivity()
         unrouted = board.GetConnectivity().GetUnconnectedCount(False)
-        print(f"attempt {attempt}: {n} segments, {stubs} stubs pruned, {unrouted} unrouted")
-        if unrouted == 0:
+        edge = edge_violations(board)
+        print(f"attempt {attempt}: {n} segments, {stubs} stubs pruned, {unrouted} unrouted, {edge} edge hits")
+        if unrouted == 0 and edge == 0:
             break
     else:
-        sys.exit(f"{pcb_path}: autorouter left {unrouted} connections unrouted")
+        sys.exit(f"{pcb_path}: autorouter left {unrouted} connections unrouted / {edge} edge hits")
     pcbnew.SaveBoard(pcb_path, board)
     os.remove(dsn)
     os.remove(ses)
