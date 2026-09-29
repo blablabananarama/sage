@@ -13,7 +13,7 @@ This is an open, buildable re-creation of Sebastian Graz's [Bayleaf](https://www
 | ![exploded: shell, keycaps, switches, PCB, bottom plate, screws](docs/img/3d/exploded.jpg) | ![inside: PCB with the nice!nano, battery and switches](docs/img/3d/inside.jpg) |
 | ![top view](docs/img/3d/top.jpg) | ![with the default keymap as legends](docs/img/3d/legends.jpg) |
 
-![case variants: drafted walls (left) vs straight walls with a 1 mm chamfer (right)](docs/img/3d/compare.jpg)
+![case variants: drafted walls (left) vs straight walls with a 0.5 mm chamfer (right)](docs/img/3d/compare.jpg)
 
 *Renders are generated from the actual STEP files and the routed PCB artwork (`docs/render3d/render.sh`). The case follows the original's MK5 drawing for the plan view and, for the top surface, the shape drawn in the [case sketchpad](https://claude.ai/artifact/11zAxZXfv3bXQXGKN8ovCU) ([data](docs/case-sketchpad-shape.json)): a one-piece silver shell with two flat levels, a 3.2 mm rim around the keys and a 5.0 mm plateau over the controller, joined by soft S-bends, plus a screwed-on bottom plate.*
 
@@ -101,5 +101,5 @@ The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted
   * Threads are 2 mm deep under the plateau and 1.1 mm under the rim (M2×2 screws there); the drawing's 3 mm ones don't fit under 5 mm.
   * **No power switch.** The cell is wired straight to the nice!nano; ZMK's deep sleep (after 15 min idle, a key press wakes it) keeps the drain to a few µA. To store it for months, unsolder a battery lead.
   * The USB-C opening is a stadium around the receptacle (9.7 × 3.9 mm). The receptacle sits 1.5–2 mm behind the outer wall, so the cable's plug overmold has to fit that opening: slim-overmold cables and magnetic-tip adapters work, bulky plugs won't seat.
-  * **Two wall styles** are generated: the default has the drafted walls of the MK5 drawing; `bayleaf-shell-*-chamfer` has straight walls with a 1 mm × 45° chamfer along the top edge ([comparison](docs/img/3d/compare.jpg)). Both use the same bottom plate and PCB.
+  * **Two wall styles** are generated: the default has the drafted walls of the MK5 drawing; `bayleaf-shell-*-chamfer` has straight walls with a 0.5 mm × 45° chamfer along the top edge ([comparison](docs/img/3d/compare.jpg)). Both use the same bottom plate and PCB.
 * **Radio.** The nice!nano sits under the aluminium roof. BLE range may suffer, which is a known trade-off of full-metal cases. The firmware already uses +8 dBm TX power, and a printed shell avoids the problem.

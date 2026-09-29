@@ -45,7 +45,7 @@ SKIN = 0.8                     # top skin (rim and roof over the controller)
 WALL_IN = 0.8                  # inner cavity inset from the top outline (gives the 27 mm bay [D])
 RABBET_W, PLATE_T = 1.0, 0.8   # [D] bottom-plate rabbet: leaves a 1 mm wall at the base
 WIN_R = 2.0                    # [S] rounded inside corners of the key window
-CHAMFER = 1.0                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
+CHAMFER = 0.5                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
 
 # ---------------------------------------------------------------- stack-up inside
 PCB_OFF = WALL_IN + 0.25       # PCB origin in shell coords (0.25 mm clearance to the cavity wall)

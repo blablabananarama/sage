@@ -9,7 +9,7 @@ There are two CNC parts per half, both 6061-T6, bead-blasted and anodised. The S
 | Part | File | Size | Weight (6061) |
 |---|---|---|---|
 | Top shell (one piece, rim + controller roof) | `bayleaf-shell-{left,right}.step` | 139.4 × 96.8 × 5.0 mm | ≈ 15 g |
-| … or the straight-wall variant | `bayleaf-shell-{left,right}-chamfer.step` | 139.4 × 96.8 × 5.0 mm | ≈ 16 g |
+| … or the straight-wall variant | `bayleaf-shell-{left,right}-chamfer.step` | 139.4 × 96.8 × 5.0 mm | ≈ 17 g |
 | Bottom plate | `bayleaf-plate-{left,right}.step` | 137.3 × 94.7 × 0.8 mm | ≈ 28 g |
 
 A finished half weighs about 92 g with the electronics, so about 185 g for the pair. The original is 180 g.
@@ -75,9 +75,9 @@ The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit unde
 | | Default (`bayleaf-shell-*`) | Chamfer (`bayleaf-shell-*-chamfer`) |
 |---|---|---|
 | Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 corners |
-| Top edge | sharp | 1.0 mm × 45° chamfer following the rim, the S-bends and the plateau (`CHAMFER` in `case.py`) |
+| Top edge | sharp | 0.5 mm × 45° chamfer following the rim, the S-bends and the plateau (`CHAMFER` in `case.py`) |
 
-The chamfer is cut as a second height field (`chamfer_field()`): the top surface lowered by 1 mm plus the distance in from the outline. So it keeps a constant 45° across the bends and runs around the corners. OCC's own chamfer can't handle the blended top surface.
+The chamfer is cut as a second height field (`chamfer_field()`): the top surface lowered by 0.5 mm plus the distance in from the outline. So it keeps a constant 45° across the bends and runs around the corners. OCC's own chamfer can't handle the blended top surface.
 
 ## Bottom plate
 

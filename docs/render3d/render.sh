@@ -32,7 +32,7 @@ for n in ['hero','desk','back','front','closeup','exploded','inside','top','lege
 out = Image.new('RGB', (3200, 2000), 'white')
 try: font = ImageFont.truetype('DejaVuSans.ttf', 34)
 except OSError: font = ImageFont.load_default()
-for i, (n, label) in enumerate([('cmp-a', 'current: drafted walls'), ('cmp-b', 'straight walls + 1 mm chamfer'), ('cmp-c', ''), ('cmp-d', '')]):
+for i, (n, label) in enumerate([('cmp-a', 'current: drafted walls'), ('cmp-b', 'straight walls + 0.5 mm chamfer'), ('cmp-c', ''), ('cmp-d', '')]):
     out.paste(Image.open(n + '.png').convert('RGB'), ((i % 2) * 1600, (i // 2) * 1000))
     ImageDraw.Draw(out).text(((i % 2) * 1600 + 50, 40), label, fill='#333', font=font)
 out.save('../img/3d/compare.jpg', quality=88, optimize=True)
