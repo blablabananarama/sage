@@ -43,7 +43,6 @@ const DARK = new Set(['Tab','Ctrl','Shift','Gui','Alt','Lower','Raise','Bksp','D
 
 const mat = {
   alu: new THREE.MeshStandardMaterial({ color: P.alu || '#b4b7bc', metalness: 0.8, roughness: 0.38 }),
-  lid: new THREE.MeshStandardMaterial({ color: P.lid || '#5d7396', metalness: 0.7, roughness: 0.45 }),
   plate: new THREE.MeshStandardMaterial({ color: P.alu || '#b4b7bc', metalness: 0.75, roughness: 0.5 }),
   cap: new THREE.MeshStandardMaterial({ color: P.legends ? '#dcd9d2' : '#eceae6', roughness: 0.65 }),
   capDark: new THREE.MeshStandardMaterial({ color: '#4a4d52', roughness: 0.62 }),
@@ -90,7 +89,6 @@ async function half(side, ox) {
   await stl(`bayleaf-plate-${side}.stl`, mat.plate, grp(0));
   const shell = grp(4.6);
   if (!P.noshell) await stl(`bayleaf-shell-${side}.stl`, mat.alu, shell);
-  if (!P.noshell && !P.nolid) await stl(`bayleaf-lid-${side}.stl`, mat.lid, grp(6.4));
 
   // PCB: textured top + dark bottom (alpha keeps the cutouts)
   const tex = await texLoader.loadAsync(`pcb-${side}-top.png`);
@@ -118,26 +116,25 @@ async function half(side, ox) {
       new THREE.MeshBasicMaterial({ map: labelTex(txt, m !== mat.cap), transparent: true, toneMapped: false }));
     lp.position.set(X(x), Y(y), 4.46); if (P.legends) caps.add(lp);
   }
-  // nice!nano (rotated 180: USB-C at the front)
+  // nice!nano (USB-C at the back)
   const nano = grp(1.6);
-  const nx = X(P_(121.65)), ny = Y(P_(75.2));
+  const nx = X(P_(121.35)), ny = Y(P_(17.05));
   box(18, 33.3, 1.0, mat.nano, nx, ny, TOP + 0.5, nano);
-  box(9, 9, 0.9, mat.black, nx, ny - 3, TOP + 1.45, nano, 0.2);                  // nRF52840 + parts
-  box(8.9, 7.3, 3.2, mat.shield, nx, Y(P_(91.85 - 3.0)), TOP + 0.5, nano, 0.6);   // mid-mount USB-C
+  box(9, 9, 0.9, mat.black, nx, ny + 3, TOP + 1.45, nano, 0.2);                  // nRF52840 + parts
+  box(8.9, 7.3, 3.2, mat.shield, nx, Y(P_(0.4 + 3.0)), TOP + 0.5, nano, 0.6);    // mid-mount USB-C
   for (let i = 0; i < 12; i++) for (const dx of [-7.62, 7.62]) {
     const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.12, 16), mat.shield);
-    pin.rotation.x = Math.PI / 2; pin.position.set(nx + dx, Y(P_(75.2 - 13.94 + 2.54 * i)), TOP + 1.06); nano.add(pin);
+    pin.rotation.x = Math.PI / 2; pin.position.set(nx + dx, Y(P_(0.4 + 2.71 + 2.54 * i)), TOP + 1.06); nano.add(pin);
   }
-  box(5.1, 5.1, 1.0, mat.shield, X(P_(116.5)), Y(P_(53.0)), TOP + 0.5, pcb);
-  box(2.2, 2.2, 1.5, mat.black, X(P_(116.5)), Y(P_(53.0)), TOP + 0.75, pcb);
-  box(3.0, 6.7, 1.4, mat.shield, X(P_(132.6)), Y(P_(54.5)), TOP + 0.7, pcb);
-  box(1.6, 1.2, 1.0, mat.black, X(P_(134.9)), Y(P_(54.5)), TOP + 0.7, pcb);
-  // LiPo 302040 in the PCB window, on the bottom plate
+  box(2.8, 4.2, 1.9, mat.shield, X(P_(110.15)), Y(P_(22.0)), TOP + 0.95, pcb);       // KMR2 reset
+  box(3.0, 6.7, 1.4, mat.shield, X(P_(132.8)), Y(P_(15.0)), TOP + 0.7, pcb);        // power switch
+  box(1.6, 1.2, 1.0, mat.black, X(P_(135.1)), Y(P_(15.0)), TOP + 0.7, pcb);
+  // LiPo 302030 in the PCB window, on the bottom plate
   const bat = grp(0.55);
-  box(20, 40, 3.0, mat.bat, X(P_(121.65)), Y(P_(27.45)), PLATE_T + 1.5, bat, 0.8);
-  box(18, 30, 0.05, mat.batLabel, X(P_(121.65)), Y(P_(27.45)), PLATE_T + 3.03, bat);
+  box(20, 30, 3.0, mat.bat, X(P_(121.65)), Y(P_(50.4)), PLATE_T + 1.5, bat, 0.8);
+  box(18, 22, 0.05, mat.batLabel, X(P_(121.65)), Y(P_(50.4)), PLATE_T + 3.03, bat);
   // M2 thin-head screws from below (only visible in the exploded view)
-  if (EXPLODE) for (const [x, y] of [[1.85,2.45],[1.85,89.85],[112.63,2.45],[130.67,2.45],[108.45,46.15],[110.4,89.85],[132.9,89.85]]) {
+  if (EXPLODE) for (const [x, y] of [[1.85,2.45],[1.85,89.85],[110.15,2.45],[132.9,2.45],[108.45,46.15],[112.63,89.85],[130.67,89.85]]) {
     const s = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 4, 16), mat.screw);
     s.rotation.x = Math.PI / 2; s.position.set(X(P_(x)), Y(P_(y)), -ex(1.2)); g.add(s);
     const h = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.5, 24), mat.screw);

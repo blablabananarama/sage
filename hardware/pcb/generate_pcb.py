@@ -36,30 +36,31 @@ PITCH_X, PITCH_Y = 17.0, 17.0    # 103 x 86 mm key window = 5 x 17 + 16 mm cap +
 KEY_X0, KEY_Y0 = 12.15, 12.15    # first key centre (centred in the window)
 DIODE_DX, DIODE_DY = -PITCH_X / 2, -1.0  # SOD-523 in the 0.95 mm gap left of each keycap
 
-NANO_X, NANO_Y = 121.65, 91.85 - 33.3 / 2  # nice!nano centre, rotated 180: USB-C faces the front edge
-NANO_ROT = 180
-USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle (front edge)
-BAT_CUT = (111.15, 6.45, 132.15, 48.45)  # x0, y0, x1, y1 - closed LiPo window (3.0 x 20 x 40 cell)
-BAT_PADS = (124.5, 51.0)
-RESET = (116.5, 53.0)                    # reachable through a pin-hole in the shell roof
-POWER_SW = (BOARD_W - 2.3, 53.9)         # actuator pokes through the inner side wall
+# Controller end: everything sits under the case's 5 mm plateau, which covers the back ~70 mm.
+NANO_X, NANO_Y = 121.35, 0.4 + 33.3 / 2   # nice!nano centre, USB-C facing the back edge
+NANO_ROT = 0
+USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle (back edge)
+BAT_CUT = (111.15, 34.9, 132.15, 65.9)   # x0, y0, x1, y1 - closed LiPo window (3.0 x 20 x 30 cell)
+BAT_PADS = (132.75, 28.25)               # beside the nice!nano, "+" toward the back
+RESET = (110.15, 22.0)                   # KMR2 in the strip beside the nano; pin-hole in the roof
+POWER_SW = (BOARD_W - 2.1, 15.0)         # actuator pokes through the inner side wall
 # Shell bosses (PCB coords): x, y, boss diameter. Each gets a 2.2 mm hole; M2 screws come up through
 # the bottom plate and the PCB, so the bosses clamp the board. Must match BOSSES in case.py.
-BOSSES = [(1.85, 2.45, 6.0), (1.85, 89.85, 6.0), (112.63, 2.45, 6.0), (130.67, 2.45, 6.0),
-          (108.45, 46.15, 6.0), (110.40, 89.85, 4.0), (132.90, 89.85, 4.0)]
+BOSSES = [(1.85, 2.45, 6.0), (1.85, 89.85, 6.0), (110.15, 2.45, 4.0), (132.90, 2.45, 4.0),
+          (108.45, 46.15, 6.0), (112.63, 89.85, 6.0), (130.67, 89.85, 6.0)]
 
 # Pro Micro pin label -> footprint pad number (see nice_nano_v2_flush.kicad_mod)
 NANO_PADS = {n: i + 1 for i, n in enumerate(
     ["D1", "D0", "GND", "GND2", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9",
      "RAW", "GND3", "RST", "3V3", "D21", "D20", "D19", "D18", "D15", "D14", "D16", "D10"])}
 # Matrix wiring - must match firmware/boards/shields/bayleaf/bayleaf_{left,right}.overlay.
-# The nice!nano is rotated 180 deg (USB-C to the front), so each half uses the pin column that faces
-# its keys plus the back end of the other column; the front-corner pins (D0/D1, RAW side) and the
-# NFC pins (D10/D16) stay unused.
+# Each half uses the nice!nano pin column that faces its keys plus the far (front) end of the other
+# column; the back-corner pins next to the USB-C (D0/D1, RAW side) and the NFC pins (D10/D16) stay
+# unused.
 MATRIX_PINS = {
     #          columns, physical left -> right                rows, back -> front
-    "left":  (["D21", "D20", "D19", "D18", "D15", "D14"], ["D9", "D8", "D7", "D6", "D5"]),
-    "right": (["D2", "D3", "D4", "D5", "D6", "D7"], ["D8", "D9", "D18", "D15", "D14"]),
+    "left":  (["D2", "D3", "D4", "D5", "D6", "D7"], ["D8", "D9", "D18", "D15", "D14"]),
+    "right": (["D21", "D20", "D19", "D18", "D15", "D14"], ["D9", "D8", "D7", "D6", "D5"]),
 }
 
 
@@ -171,16 +172,16 @@ class Builder:
         r = CORNER_R
         W, H = BOARD_W, BOARD_H
         poly = [  # straight edges; rounded outer corners are added as arcs
-            (r, 0), (W - r, 0),
+            (r, 0), (ux0, 0), (ux0, USB_NOTCH_D), (ux1, USB_NOTCH_D), (ux1, 0), (W - r, 0),
             None,  # corner top-right
             (W, r), (W, H - r),
             None,  # corner bottom-right
-            (W - r, H), (ux1, H), (ux1, H - USB_NOTCH_D), (ux0, H - USB_NOTCH_D), (ux0, H), (r, H),
+            (W - r, H), (r, H),
             None,  # corner bottom-left
             (0, H - r), (0, r),
             None,  # corner top-left
         ]
-        corners = {2: ((W - r, r), (W - r, 0)), 5: ((W - r, H - r), (W, H - r)),
+        corners = {6: ((W - r, r), (W - r, 0)), 9: ((W - r, H - r), (W, H - r)),
                    12: ((r, H - r), (r, H)), 15: ((r, r), (0, r))}
         prev = None
         for i, p in enumerate(poly + [poly[0]]):
@@ -230,13 +231,12 @@ class Builder:
         self.connect(u, NANO_PADS["RAW"], "RAW")
         self.connect(u, NANO_PADS["RST"], "RST")
 
-        bt = self.place(LIB, "Battery_Pads", "BT1", *BAT_PADS, rot=180 if self.side == "left" else 0,
-                        value="LiPo 3.7V")  # "+" pad next to the power switch on both halves
+        bt = self.place(LIB, "Battery_Pads_Small", "BT1", *BAT_PADS, value="LiPo 3.7V")
         self.connect(bt, "1", "BAT+")
         self.connect(bt, "2", "GND")
 
-        rst = self.place(f"{KICAD_FP}/Button_Switch_SMD.pretty", "SW_Push_1P1T_XKB_TS-1187A",
-                         "SW31", *RESET, value="TS-1187A-B-A-B")
+        rst = self.place(f"{KICAD_FP}/Button_Switch_SMD.pretty", "SW_Push_1P1T_NO_CK_KMR2",
+                         "SW31", *RESET, rot=90, value="KMR211NGLFS")
         self.connect(rst, "1", "RST")
         self.connect(rst, "2", "GND")
 
@@ -246,13 +246,11 @@ class Builder:
         self.connect(pwr, "1", "BAT+")
         self.connect(pwr, "2", "RAW")
 
-        if self.side == "left":
-            self.preroute_raw(u, pwr)
 
         self.text("BAYLEAF", 56, 40, 4.0, pcbnew.B_SilkS)
         self.text(f"{self.side} half - rev 1", 56, 47, 1.5, pcbnew.B_SilkS)
-        self.text("RST", RESET[0] - 4.6, RESET[1] + 3.6, 0.8)
-        self.text("LiPo 3.0x20x40", 121.65, 27.0, 0.9, pcbnew.Cmts_User)
+        self.text("RST", RESET[0], RESET[1] - 4.2, 0.8)
+        self.text("LiPo 3.0x20x30", 121.65, 50.0, 0.9, pcbnew.Cmts_User)
         for i, (x, y, d) in enumerate(BOSSES):
             h = self.place(f"{KICAD_FP}/MountingHole.pretty", "MountingHole_2.2mm_M2", f"H{i + 1}", x, y,
                            value=f"boss {d:g}")
@@ -436,7 +434,7 @@ def route(pcb_path, attempts=10):
 # LCSC numbers: check stock before ordering.
 JLC_PARTS = {
     "D_SOD-523": ("1N4148WT", ""),  # pick any 1N4148WT/SOD-523 in JLC's parts search
-    "SW_Push_1P1T_XKB_TS-1187A": ("TS-1187A-B-A-B", "C318884"),
+    "SW_Push_1P1T_NO_CK_KMR2": ("KMR211NGLFS", ""),  # C&K KMR2 4.2 x 2.8 mm; pick a stocked KMR2 in JLC
     "SW_SPDT_PCM12": ("MSK12C02", "C431540"),
 }
 

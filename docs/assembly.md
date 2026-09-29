@@ -7,11 +7,10 @@ Do these steps once per half. They're written for the left half; the right half 
 ## Stack-up
 
 ```
-5.0 mm ┬ top of the lid over the controller bay: the tallest point
-4.2 mm ┼ lid underside (0.8 mm lid on 0.1 mm tape)
+5.0 mm ┬ plateau over the controller: the tallest point (roof underside 4.2 mm)
 ~4.4   │ keycap tops
-4.1 mm ┼ shell at the back and around the bay; the frame curves down to 3.1 mm along the front edge
-~4.0   │ top of the nice!nano; 3.0 mm LiPo on the bottom plate beside it
+~4.0   │ top of the nice!nano; 3.0 mm LiPo on the bottom plate in front of it
+3.2 mm ┼ rim around the keys and along the front; S-bends join it to the plateau
 1.6 mm ┼ PCB top: the shell's posts press down here
 0.8 mm ┼ PCB (0.8 mm FR4) on 0.05 mm Kapton film
 0.0 mm ┴ bottom plate (0.8 mm aluminium), flush in the shell's rabbet; 7 thin-head M2 screws come up through it
@@ -32,7 +31,7 @@ Do these steps once per half. They're written for the left half; the right half 
 
 ## 3. Reset button and power switch
 
-Solder SW31 (tact switch, next to the controller) and SW32 (slide switch on the inner edge, lever pointing out of the board). Skip this if JLC placed them.
+Solder SW31 (KMR2 tact switch, beside the controller) and SW32 (slide switch on the inner edge, lever pointing out of the board). Skip this if JLC placed them.
 
 ## 4. Flash and test the nice!nano *before* soldering it
 
@@ -43,34 +42,33 @@ Solder SW31 (tact switch, next to the controller) and SW32 (slide switch on the 
 ## 5. Solder the nice!nano flush
 
 1. Cover the PCB area under the controller with a layer of Kapton tape, leaving the 24 holes open (poke through with a needle).
-2. Lay the nice!nano on the board, components up, USB-C over the notch at the board edge.
+2. Lay the nice!nano on the board, components up, USB-C over the notch in the back edge of the board.
 3. Push a short piece of 0.5–0.6 mm tinned wire (cut component legs work well) through each nice!nano hole into the PCB hole below. Solder it on the top, then on the bottom.
 4. Cut every pin **flush** on the bottom side. The case floor only has a 0.3 mm relief under the pin rows.
 
 ## 6. Battery
 
 1. Slide the power switch to OFF.
-2. The 3.0 mm cell drops into the window in the PCB behind the controller (toward the back of the bay). It rests on the bottom plate.
+2. The 3.0 mm 302030 cell drops into the window in the PCB in front of the controller. It rests on the bottom plate.
 3. Solder the cell's red lead to **+** and black to **−** on the BT1 pads. Keep the leads short.
 4. Put Kapton on the cell. It's held by a small piece of thin double-sided tape once the plate is on.
 
 ## 7. Close the case
 
 1. Lay the shell upside down on a soft cloth.
-2. Drop the PCB in, keys down, so the switches go into the key window, USB-C into the front slot of the bay, and the power-switch lever into the side slot. The 7 holes in the PCB line up with the shell's posts.
+2. Drop the PCB in, keys down, so the switches go into the key window, USB-C into the window in the back wall, and the power-switch lever into the side slot. The 7 holes in the PCB line up with the shell's posts.
 3. Put the 0.05 mm Kapton film on the back of the PCB. Stick the battery to the bottom plate where it will meet the cell, then drop the plate into the rabbet.
-4. Screw in the thin-head screws: M2×2 in the front key-frame corner (its thread is only 1.1 mm deep), M2×3 in the other six. Snug, not tight: the posts clamp the PCB.
-5. Turn it over. Put 0.1 mm double-sided tape on the tops of the bay walls, the divider and the four posts in the bay. Press the lid on, flush with the outer edges.
-6. Snap on the 30 keycaps and stick 4 bumpons under each half.
+4. Screw in the thin-head screws: M2×2 in the four posts under the rim (both key-frame corners and the front pair at the bay; their threads are only 1.1 mm deep), M2×3 in the other three (back of the bay, divider). Snug, not tight: the posts clamp the PCB.
+5. Snap on the 30 keycaps and stick 4 bumpons under each half.
 
 ## 8. Pair
 
 1. Switch both halves ON. They pair with each other automatically; the left half is the BLE "central".
-2. On the computer, pair with **Bayleaf**. The reset button is reachable with a paper clip through the pin-hole in the lid. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
+2. On the computer, pair with **Bayleaf**. The reset button is reachable with a paper clip through the pin-hole in the plateau. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
 
 ## Troubleshooting
 
 * **A key doesn't register:** usually a switch contact pad that didn't wet. Reflow that switch, or touch up its pads from the side with the iron.
 * **A whole row or column is dead:** check the flush joints on the nice!nano pins.
 * **The halves don't connect:** flash `settings_reset` to both halves, then the real firmware again.
-* **Short range in the aluminium case:** the controller sits under an aluminium lid, so the radio mostly escapes through the key window and the USB slot. The firmware already sets TX power to +8 dBm. If range is still poor, swap the lid for a printed or acrylic one (same STEP file); it's only held by tape.
+* **Short range in the aluminium case:** the controller sits under the aluminium roof, so the radio mostly escapes through the key window and the USB window. The firmware already sets TX power to +8 dBm. If range is still poor, a printed (MJF/SLS) shell avoids the problem.
