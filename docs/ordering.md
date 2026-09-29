@@ -24,7 +24,7 @@ Turn on *PCB Assembly → Economic, top side*. Then upload for each half:
 * BOM: `hardware/pcb/fab/<side>/bayleaf-<side>-jlc-bom.csv`
 * CPL: `hardware/pcb/fab/<side>/bayleaf-<side>-jlc-cpl.csv`
 
-This places D1–D30 (1N4148WT, SOD-523: pick a stocked part in JLC's search), SW31 (KMR211NGLFS: pick a stocked KMR2 in JLC's search) and SW32 (MSK12C02, C431540). **Check stock and the rotation preview** before paying. JLC's part library sometimes needs a 180° correction for small diodes. On the right PCB the diodes' cathode (pad 1, the band) must sit toward the **row** trace; in the 3D preview, check that the band points to the same side as the silkscreen band.
+This places D1–D30 (1N4148WT, SOD-523: pick a stocked part in JLC's search) and SW31 (KMR211NGLFS: pick a stocked KMR2 in JLC's search). **Check stock and the rotation preview** before paying. JLC's part library sometimes needs a 180° correction for small diodes. On the right PCB the diodes' cathode (pad 1, the band) must sit toward the **row** trace; in the 3D preview, check that the band points to the same side as the silkscreen band.
 
 The switches (PG1316S) and the nice!nano are not placed by JLC. You solder them yourself (see [assembly.md](assembly.md)).
 
@@ -39,7 +39,7 @@ The switches (PG1316S) and the nice!nano are not placed by JLC. You solder them 
 
 The case follows the original's MK5 drawing for the plan view and the shape sent through the case sketchpad for the top surface: a 3.2 mm rim around the keys and a 5.0 mm plateau over the controller, joined by soft S-bends, all one piece. See [case-drawing.md](case-drawing.md) for all dimensions and what I changed.
 
-* Upload `hardware/case/out/bayleaf-shell-{left,right}.step` and `bayleaf-plate-{left,right}.step` to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each.
+* Upload `hardware/case/out/bayleaf-shell-{left,right}.step` (drafted walls) **or** `bayleaf-shell-{left,right}-chamfer.step` (straight walls with a 1 mm chamfer on the top edge; see [the comparison](img/3d/compare.jpg)), and `bayleaf-plate-{left,right}.step` to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each.
   * Material: 6061-T6. Finish: bead blast + anodise. Silver/clear for the original's look.
   * Threads: 7 × M2×0.4, blind, cut up from the bottom into the posts: three 2 mm deep (back of the bay, divider) and four 1.1 mm deep (the posts under the rim). Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
   * Rough cost: shell $70–110, plate $15–30, per half.

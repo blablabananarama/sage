@@ -29,16 +29,14 @@ The PCBs are generated straight from `hardware/pcb/generate_pcb.py`, with no sep
 | ROW3 | D15 (P1.13, 15) | D6 (P1.00, 6) |
 | ROW4 (front row) | D14 (P1.11, 14) | D5 (P0.24, 5) |
 
-The nice!nano sits with its USB-C facing the back edge (the case's USB window is in the back wall). Each half uses the pin column that faces its keys for the columns, and continues the rows on the nearer pins. The NFC pins (D10/D16) and the serial pins (D0/D1) are left unused.
+The nice!nano sits with its USB-C facing the back edge (the case's USB-C opening is in the back wall). Each half uses the pin column that faces its keys for the columns, and continues the rows on the nearer pins. The NFC pins (D10/D16) and the serial pins (D0/D1) are left unused.
 
 On each half, columns are numbered left → right, so the right half's COL0 is its innermost column. The pins are set per half in `bayleaf_left.overlay` / `bayleaf_right.overlay`, and the right half adds `col-offset = <6>`.
 
 ## Power and misc
 
 ```
- LiPo + ── BT1.1 (BAT+) ── SW32.1 ┐
-                                   ├ MSK12C02 slide switch (common = pin 2)
- nice!nano RAW/B+ ── SW32.2 ───────┘   SW32.3 unused (= off position)
+ LiPo + ── BT1.1 ── nice!nano RAW/B+   (no power switch; ZMK deep sleep after 15 min idle)
  LiPo − ── BT1.2 ── GND ── nice!nano GND (2 pins wired; the third, B−, is tied internally)
 
  nice!nano RST ── SW31 (KMR2 tact switch) ── GND   double-tap → UF2 bootloader

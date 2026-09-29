@@ -78,7 +78,7 @@ async function stl(name, m, parent) {
   const geo = await loader.loadAsync(name); geo.computeVertexNormals();
   const o = new THREE.Mesh(geo, m); o.castShadow = o.receiveShadow = true; parent.add(o); return o;
 }
-async function half(side, ox) {
+async function half(side, ox, style = '') {
   const g = new THREE.Group(); g.position.x = ox; scene.add(g);
   const X = side === 'left' ? (x) => x : (x) => TOP_W - x;   // shell coords -> world
   const Y = (y) => -y;
@@ -88,7 +88,7 @@ async function half(side, ox) {
 
   await stl(`bayleaf-plate-${side}.stl`, mat.plate, grp(0));
   const shell = grp(4.6);
-  if (!P.noshell) await stl(`bayleaf-shell-${side}.stl`, mat.alu, shell);
+  if (!P.noshell) await stl(`bayleaf-shell-${side}${style}.stl`, mat.alu, shell);
 
   // PCB: textured top + dark bottom (alpha keeps the cutouts)
   const tex = await texLoader.loadAsync(`pcb-${side}-top.png`);
@@ -121,14 +121,21 @@ async function half(side, ox) {
   const nx = X(P_(121.35)), ny = Y(P_(17.05));
   box(18, 33.3, 1.0, mat.nano, nx, ny, TOP + 0.5, nano);
   box(9, 9, 0.9, mat.black, nx, ny + 3, TOP + 1.45, nano, 0.2);                  // nRF52840 + parts
-  box(8.9, 7.3, 3.2, mat.shield, nx, Y(P_(0.4 + 3.0)), TOP + 0.5, nano, 0.6);    // mid-mount USB-C
+  {                                                                               // mid-mount USB-C (obround)
+    const sh = new THREE.Shape(), r = 1.6, hw = 8.94 / 2 - r;
+    sh.absarc(hw, 0, r, -Math.PI / 2, Math.PI / 2); sh.absarc(-hw, 0, r, Math.PI / 2, 3 * Math.PI / 2);
+    const usb = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 7.3, bevelEnabled: false, curveSegments: 24 }), mat.shield);
+    usb.rotation.x = Math.PI / 2; usb.position.set(nx, Y(P_(-0.25)), TOP + 0.5); usb.castShadow = true; nano.add(usb);
+    const hole = new THREE.Shape(), r2 = 1.2, hw2 = 8.25 / 2 - r2;
+    hole.absarc(hw2, 0, r2, -Math.PI / 2, Math.PI / 2); hole.absarc(-hw2, 0, r2, Math.PI / 2, 3 * Math.PI / 2);
+    const mouth = new THREE.Mesh(new THREE.ShapeGeometry(hole, 24), new THREE.MeshBasicMaterial({ color: '#070707', side: THREE.DoubleSide }));    // dark opening
+    mouth.rotation.x = Math.PI / 2; mouth.position.set(nx, Y(P_(-0.25)) + 0.01, TOP + 0.5); nano.add(mouth);
+  }
   for (let i = 0; i < 12; i++) for (const dx of [-7.62, 7.62]) {
     const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.12, 16), mat.shield);
     pin.rotation.x = Math.PI / 2; pin.position.set(nx + dx, Y(P_(0.4 + 2.71 + 2.54 * i)), TOP + 1.06); nano.add(pin);
   }
   box(2.8, 4.2, 1.9, mat.shield, X(P_(110.15)), Y(P_(22.0)), TOP + 0.95, pcb);       // KMR2 reset
-  box(3.0, 6.7, 1.4, mat.shield, X(P_(132.8)), Y(P_(15.0)), TOP + 0.7, pcb);        // power switch
-  box(1.6, 1.2, 1.0, mat.black, X(P_(135.1)), Y(P_(15.0)), TOP + 0.7, pcb);
   // LiPo 302030 in the PCB window, on the bottom plate
   const bat = grp(0.55);
   box(20, 30, 3.0, mat.bat, X(P_(121.65)), Y(P_(50.4)), PLATE_T + 1.5, bat, 0.8);
@@ -145,7 +152,9 @@ async function half(side, ox) {
 
 const halves = (P.halves || 'left,right').split(',');
 const x0 = halves.length === 2 ? 0 : 0;
-for (const [i, s] of halves.entries()) await half(s, i * (OUT_W + GAP));
+// styles: per-half STL suffix, e.g. halves=left,left&styles=,-chamfer puts the two case variants side by side
+const styles = (P.styles || '').split(',');
+for (const [i, s] of halves.entries()) await half(s, i * (OUT_W + GAP), styles[i] || '');
 const spanX = halves.length === 2 ? 2 * OUT_W + GAP : OUT_W;
 
 // ground plane with soft shadow

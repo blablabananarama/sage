@@ -5,7 +5,6 @@ Item,Qty (both halves),Designators (per half),Part,Specification / part number,W
 4,60 (+10 spare),D1-D30,Diode,"1N4148WT, SOD-523 (0.8 mm wide body; fits the 0.95 mm gap between keycaps)",LCSC / JLCPCB assembly,0.02,1.40,"Search ""1N4148WT"" in the LCSC/JLC catalogue; any SOD-523 small-signal diode works"
 5,2,U1,Controller,"nice!nano v2 (nRF52840, mid-mount USB-C, 3.2 mm thick)","nicekeyboards.com, typeractive.xyz, boardsource, mechboards",25.00,50.00,"Soldered flush to the PCB, no headers/sockets"
 6,2,BT1,Battery,"3.7 V LiPo pouch cell 302030 (3.0 x 20 x 30 mm, ~120-150 mAh) with protection circuit",AliExpress / Adafruit-style LiPo shops,4.00,8.00,Sits on the bottom plate in the PCB window under the controller roof; max 3.0 x 21 x 31 mm (the roof underside is >= 4.0 mm there)
-7,2 (+3 spare),SW32,Power switch,"MSK12C02 SPDT side-actuated SMD slide switch (LCSC C431540), PCM12 footprint",LCSC / JLCPCB assembly,0.20,1.00,
 8,2,SW31,Reset button,"C&K KMR211NGLFS (KMR2, 4.2 x 2.8 x 1.9 mm SMD tact switch) or a stocked KMR2-footprint clone",LCSC / JLCPCB assembly,0.30,0.60,Double-tap = bootloader; pressed with a paper clip through the pin-hole in the shell
 9,2 + 2,-,Case: one-piece top shell + bottom plate,"CNC 6061-T6, bead-blasted + anodised; hardware/case/out/bayleaf-{shell,plate}-{left,right}.step; threads per docs/case-drawing.md",JLCCNC / PCBWay CNC / Xometry,100.00,200.00,"Estimate per half: shell ~$70-110, plate ~$15-30. Budget: MJF/SLS nylon prints of the same files, ~$15-25 per half"
 10,1 roll,-,Foam tape,Thin double-sided foam tape for the battery,Amazon / hobby shops,5.00,5.00,
@@ -14,9 +13,9 @@ Item,Qty (both halves),Designators (per half),Part,Specification / part number,W
 13,6 + 8,-,Screws,"M2 x 3 (6x) and M2 x 2 (8x), thin/wafer head (head <= 0.5 mm, dia 4 mm), e.g. laptop screw assortment",Amazon / AliExpress,0.40,5.60,"7 per half: M2 x 2 in the 4 posts under the 3.2 mm rim, M2 x 3 in the other 3; see docs/case-drawing.md"
 14,1,-,Shipping,PCB order + switches/keycaps + controllers,-,35.00,35.00,Very rough; depends on country and shipping speed
 ,,,,,,,,
-,,,ELECTRONICS ONLY (items 1-2 and 4-8),,,,165.00,"PCBs, switches, diodes, nice!nanos, cells, slide + reset switches; excl. keycaps, case, consumables, shipping"
-,,,TOTAL (aluminium case),,,,445.80,"Single build, parts incl. spares; excludes tools"
-,,,TOTAL (printed nylon case),,,,285.80,"Same, with ~$40 of MJF/SLS prints instead of CNC aluminium"
-,,,Optional: JLCPCB assembly of D1-D30 + SW31 + SW32,,,,40.00,"~$20 per design (setup + extended-part fees), saves soldering 64 small parts"
+,,,"ELECTRONICS ONLY (items 1-2, 4-6 and 8)",,,,164.00,"PCBs, switches, diodes, nice!nanos, cells, reset buttons; excl. keycaps, case, consumables, shipping"
+,,,TOTAL (aluminium case),,,,444.80,"Single build, parts incl. spares; excludes tools"
+,,,TOTAL (printed nylon case),,,,284.80,"Same, with ~$40 of MJF/SLS prints instead of CNC aluminium"
+,,,Optional: JLCPCB assembly of D1-D30 + SW31,,,,40.00,"~$20 per design (setup + extended-part fees), saves soldering 62 small parts"
 ,,,Optional: SMT stencils,,,,14.00,One per design (F.Paste layer is in the gerber zip)
 ,,,Tools if you have none,"Mini hotplate, low-temp solder paste Sn42Bi58, fine-tip iron, flux, Phillips #00 driver",,,60-120,

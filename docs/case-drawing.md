@@ -9,6 +9,7 @@ There are two CNC parts per half, both 6061-T6, bead-blasted and anodised. The S
 | Part | File | Size | Weight (6061) |
 |---|---|---|---|
 | Top shell (one piece, rim + controller roof) | `bayleaf-shell-{left,right}.step` | 139.4 × 96.8 × 5.0 mm | ≈ 15 g |
+| … or the straight-wall variant | `bayleaf-shell-{left,right}-chamfer.step` | 139.4 × 96.8 × 5.0 mm | ≈ 16 g |
 | Bottom plate | `bayleaf-plate-{left,right}.step` | 137.3 × 94.7 × 0.8 mm | ≈ 28 g |
 
 A finished half weighs about 92 g with the electronics, so about 185 g for the pair. The original is 180 g.
@@ -52,8 +53,7 @@ A finished half weighs about 92 g with the electronics, so about 185 g for the p
 * **Divider:** 2 mm **[D]**. It stops 1.2 mm above the PCB so the SMD parts pass underneath.
 * **Controller bay:** 27 mm **[D]**, closed on top by the shell's roof.
 * **Bottom plate seat:** a rabbet 1.0 mm wide × 0.8 mm deep, leaving a 1 mm wall at the base **[D]**.
-* **USB-C:** a 10 mm window in the **back** wall of the bay, z 0.85–4.2 mm, centred on the nice!nano.
-* **Power switch:** a 4.4 mm slot in the inner side wall, 15 mm from the back of the PCB.
+* **USB-C:** a stadium-shaped (obround) opening in the **back** wall, 9.7 × 3.9 mm with full-round ends, concentric with the 8.94 × 3.26 mm receptacle (centre z = 2.1 mm, x = 122.4 mm). Its lower curve dips 0.65 mm into the bottom plate's edge, which carries the same cut, so the outline reads as one clean stadium. There is no power-switch slot: the board has no power switch.
 * **Reset:** a Ø1.6 mm pin-hole through the plateau above the KMR2 button (PCB (110.15, 22.0)).
 
 ### Posts: M2×0.4 6H, blind from below, Ø2.4 × 90° countersink [D]
@@ -68,11 +68,22 @@ A finished half weighs about 92 g with the electronics, so about 185 g for the p
 
 The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit under a 5 mm keyboard, so `case.py` sizes each thread to leave 0.5 mm of material above it: 2 mm under the plateau, 1.1 mm under the rim. The STEP models them at the Ø1.6 mm tap-drill size; give the shop the thread callout.
 
+## Wall variants
+
+`case.py` writes two shells from the same top surface. They fit the same PCB, bottom plate and screws. [Side by side](img/3d/compare.jpg):
+
+| | Default (`bayleaf-shell-*`) | Chamfer (`bayleaf-shell-*-chamfer`) |
+|---|---|---|
+| Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 corners |
+| Top edge | sharp | 1.0 mm × 45° chamfer following the rim, the S-bends and the plateau (`CHAMFER` in `case.py`) |
+
+The chamfer is cut as a second height field (`chamfer_field()`): the top surface lowered by 1 mm plus the distance in from the outline. So it keeps a constant 45° across the bends and runs around the corners. OCC's own chamfer can't handle the blended top surface.
+
 ## Bottom plate
 
 * 0.8 mm thick. It drops into the shell's rabbet and sits flush with the base.
 * Seven Ø2.2 mm holes, counterbored Ø4.2 × 0.5 mm from below for thin-head screws.
-* A 0.4 mm deep pocket on the top face under the USB-C receptacle (back edge).
+* A 0.4 mm deep pocket on the top face under the USB-C receptacle, and the lower curve of the USB-C opening in its back edge.
 
 ## Fasteners
 

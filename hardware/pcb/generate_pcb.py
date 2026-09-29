@@ -43,7 +43,6 @@ USB_NOTCH_W, USB_NOTCH_D = 10.5, 7.5    # room for the mid-mount receptacle (bac
 BAT_CUT = (111.15, 34.9, 132.15, 65.9)   # x0, y0, x1, y1 - closed LiPo window (3.0 x 20 x 30 cell)
 BAT_PADS = (132.75, 28.25)               # beside the nice!nano, "+" toward the back
 RESET = (110.15, 22.0)                   # KMR2 in the strip beside the nano; pin-hole in the roof
-POWER_SW = (BOARD_W - 2.1, 15.0)         # actuator pokes through the inner side wall
 # Shell bosses (PCB coords): x, y, boss diameter. Each gets a 2.2 mm hole; M2 screws come up through
 # the bottom plate and the PCB, so the bosses clamp the board. Must match BOSSES in case.py.
 BOSSES = [(1.85, 2.45, 6.0), (1.85, 89.85, 6.0), (110.15, 2.45, 4.0), (132.90, 2.45, 4.0),
@@ -232,19 +231,13 @@ class Builder:
         self.connect(u, NANO_PADS["RST"], "RST")
 
         bt = self.place(LIB, "Battery_Pads_Small", "BT1", *BAT_PADS, value="LiPo 3.7V")
-        self.connect(bt, "1", "BAT+")
+        self.connect(bt, "1", "RAW")         # no power switch: the cell feeds the nice!nano directly
         self.connect(bt, "2", "GND")
 
         rst = self.place(f"{KICAD_FP}/Button_Switch_SMD.pretty", "SW_Push_1P1T_NO_CK_KMR2",
                          "SW31", *RESET, rot=90, value="KMR211NGLFS")
         self.connect(rst, "1", "RST")
         self.connect(rst, "2", "GND")
-
-        # PCM12 actuator points +Y at 0 deg; 90 deg turns it toward +X (inner edge of the left half)
-        pwr = self.place(f"{KICAD_FP}/Button_Switch_SMD.pretty", "SW_SPDT_PCM12",
-                         "SW32", *POWER_SW, rot=90, value="MSK12C02")
-        self.connect(pwr, "1", "BAT+")
-        self.connect(pwr, "2", "RAW")
 
 
         self.text("BAYLEAF", 56, 40, 4.0, pcbnew.B_SilkS)
@@ -257,30 +250,6 @@ class Builder:
             for g in list(h.GraphicalItems()):  # stock courtyard is wider than the 4 mm bosses
                 if g.GetLayer() == pcbnew.F_CrtYd:
                     h.Remove(g)
-
-    def preroute_raw(self, nano, pwr):
-        """On the left half the nice!nano's RAW pin ends up boxed in at the front-left corner (boss,
-        USB notch, board edge); Freerouting rarely finds the way out, so route it by hand and lock it:
-        B.Cu between the two pin columns, past the top of the nano, via up to the slide switch."""
-        raw = next(p for p in nano.Pads() if p.GetName() == str(NANO_PADS["RAW"]))
-        sw = next(p for p in pwr.Pads() if p.GetName() == "2")
-        rx, ry = pcbnew.ToMM(raw.GetPosition().x), pcbnew.ToMM(raw.GetPosition().y)
-        sx, sy = pcbnew.ToMM(sw.GetPosition().x), pcbnew.ToMM(sw.GetPosition().y)
-        lane_x = rx + 1.37                      # between the pin column and the USB notch
-        lane_y = NANO_Y - 33.3 / 2 - 1.35       # just behind the nice!nano
-        via = (sx - 1.6, sy)
-        pts = [(rx, ry), (lane_x, ry), (lane_x, lane_y), (via[0] - (lane_y - via[1]), lane_y), via]
-        net = self.net("RAW")
-        for a, b in zip(pts, pts[1:]):
-            t = pcbnew.PCB_TRACK(self.board)
-            t.SetStart(pt(*a)); t.SetEnd(pt(*b)); t.SetWidth(mm(0.25)); t.SetLayer(pcbnew.B_Cu)
-            t.SetNet(net); t.SetLocked(True); self.board.Add(t)
-        v = pcbnew.PCB_VIA(self.board)
-        v.SetPosition(pt(*via)); v.SetWidth(mm(0.6)); v.SetDrill(mm(0.3)); v.SetNet(net); v.SetLocked(True)
-        self.board.Add(v)
-        t = pcbnew.PCB_TRACK(self.board)
-        t.SetStart(pt(*via)); t.SetEnd(pt(sx, sy)); t.SetWidth(mm(0.25)); t.SetLayer(pcbnew.F_Cu)
-        t.SetNet(net); t.SetLocked(True); self.board.Add(t)
 
     def keepouts(self):
         # The aluminium bosses sit on the board: no top copper or vias under them.
@@ -435,7 +404,6 @@ def route(pcb_path, attempts=10):
 JLC_PARTS = {
     "D_SOD-523": ("1N4148WT", ""),  # pick any 1N4148WT/SOD-523 in JLC's parts search
     "SW_Push_1P1T_NO_CK_KMR2": ("KMR211NGLFS", ""),  # C&K KMR2 4.2 x 2.8 mm; pick a stocked KMR2 in JLC
-    "SW_SPDT_PCM12": ("MSK12C02", "C431540"),
 }
 
 

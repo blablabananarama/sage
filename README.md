@@ -13,6 +13,8 @@ This is an open, buildable re-creation of Sebastian Graz's [Bayleaf](https://www
 | ![exploded: shell, keycaps, switches, PCB, bottom plate, screws](docs/img/3d/exploded.jpg) | ![inside: PCB with the nice!nano, battery and switches](docs/img/3d/inside.jpg) |
 | ![top view](docs/img/3d/top.jpg) | ![with the default keymap as legends](docs/img/3d/legends.jpg) |
 
+![case variants: drafted walls (left) vs straight walls with a 1 mm chamfer (right)](docs/img/3d/compare.jpg)
+
 *Renders are generated from the actual STEP files and the routed PCB artwork (`docs/render3d/render.sh`). The case follows the original's MK5 drawing for the plan view and, for the top surface, the shape drawn in the [case sketchpad](https://claude.ai/artifact/11zAxZXfv3bXQXGKN8ovCU) ([data](docs/case-sketchpad-shape.json)): a one-piece silver shell with two flat levels, a 3.2 mm rim around the keys and a 5.0 mm plateau over the controller, joined by soft S-bends, plus a screwed-on bottom plate.*
 
 | | Original Bayleaf (published) | This reproduction |
@@ -33,7 +35,7 @@ hardware/pcb/generate_pcb.py      the whole PCB as code: placement, nets, outlin
 hardware/pcb/bayleaf-{left,right}.kicad_pcb   routed KiCad 7 boards (open in KiCad to inspect or edit)
 hardware/pcb/lib/bayleaf.pretty/  footprints: PG1316S, nice!nano (flush), battery pads
 hardware/pcb/fab/{left,right}/    gerbers+drill zip, JLCPCB BOM/CPL, 3D STEP of the board, DRC report
-hardware/case/case.py             parametric shell + bottom plate (CadQuery); out/ has STEP + STL
+hardware/case/case.py             parametric shell (drafted or straight + chamfer) + bottom plate (CadQuery); out/ has STEP + STL
 firmware/                         ZMK shield "bayleaf" + keymap; built by .github/workflows/firmware.yml
 docs/BOM.csv                      full bill of materials with prices
 docs/ordering.md                  exact fab settings (PCB, PCBA, CNC, parts)
@@ -57,15 +59,15 @@ These are estimates from September 2026 for a single keyboard, including spares 
 | 60 × PG1316S keycaps | 27 |
 | 2 × nice!nano v2 | 50 |
 | 2 × LiPo 302030 | 8 |
-| Diodes, slide switches, reset buttons | 3 |
+| Diodes, reset buttons | 2 |
 | Foam tape, Kapton, bumpons, M2 screws | 19 |
 | Shipping (rough) | 35 |
 | 2 × CNC aluminium shell + bottom plate (6061, anodised) | 200 |
-| **Electronics only** (PCBs, switches, diodes, controllers, batteries, slide and reset switches) | **≈ $165** |
-| **Total with aluminium case** | **≈ $446** |
-| **Total with printed nylon case instead** | **≈ $286** |
+| **Electronics only** (PCBs, switches, diodes, controllers, batteries, reset buttons) | **≈ $164** |
+| **Total with aluminium case** | **≈ $445** |
+| **Total with printed nylon case instead** | **≈ $285** |
 
-Optional extras: JLCPCB assembly of the 64 small SMD parts (≈ $40), SMT stencils (≈ $14), and a hotplate plus low-temp paste if you don't own them (≈ $60–120).
+Optional extras: JLCPCB assembly of the 62 small SMD parts (≈ $40), SMT stencils (≈ $14), and a hotplate plus low-temp paste if you don't own them (≈ $60–120).
 
 Most of the extra units are leftovers you can't avoid: 3 spare PCBs per side at the 5-piece minimum, spare switches, and so on.
 
@@ -73,7 +75,7 @@ Most of the extra units are leftovers you can't avoid: 3 spare PCBs per side at 
 
 1. **Order**: follow [docs/ordering.md](docs/ordering.md). Upload the gerber zips, optionally the JLC BOM/CPL, and the case STEP files. Buy switches, caps, 2 nice!nanos and 2 cells.
 2. **Firmware**: GitHub Actions builds `bayleaf_left`, `bayleaf_right` and `settings_reset` UF2s on every push. See [firmware/README.md](firmware/README.md).
-3. **Assemble**: follow [docs/assembly.md](docs/assembly.md). The rough order is diodes → switches (hotplate) → reset/power → nice!nano flush → battery → PCB into the shell → bottom plate + 7 screws.
+3. **Assemble**: follow [docs/assembly.md](docs/assembly.md). The rough order is diodes → switches (hotplate) → reset button → nice!nano flush → battery → PCB into the shell → bottom plate + 7 screws.
 
 ## Regenerating the design
 
@@ -85,7 +87,7 @@ make case     # CadQuery (shell + bottom plate)
 make render   # README renders (docs/render3d)
 ```
 
-The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted. It writes a DRC report next to the gerbers. The committed boards have **0 unconnected pads and 0 electrical DRC errors**; the report only lists cosmetic silkscreen warnings and one nominal courtyard overlap (see below). Freerouting isn't deterministic, so each regeneration produces different (equally valid) traces.
+The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted. It writes a DRC report next to the gerbers. The committed boards have **0 unconnected pads and 0 electrical DRC errors**; the report only lists cosmetic silkscreen and library-path warnings. Freerouting isn't deterministic, so each regeneration produces different (equally valid) traces.
 
 ## Status and caveats
 
@@ -94,8 +96,10 @@ The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted
 * The nice!nano is soldered flush, without sockets, to reach 5 mm. Flash and test it **before** soldering it down.
 * The LCSC part numbers in the BOM are well-known parts, but check stock before ordering.
 * **Case vs. the original.** The plan view comes from the MK5 drawing and the top surface from the sketchpad shape (3.2 / 5.0 mm levels, a square-cornered plateau at x ≥ 96.5, y ≤ 76 mm, 16.5 mm S-bends). The overall depth (4.2 mm border all round) and the keycap height (~4.4 mm) are my estimates. [docs/case-drawing.md](docs/case-drawing.md) marks which numbers come from where.
-  * The plateau only covers the back 76 mm of the controller strip, so the PCB is laid out for it: the nice!nano's USB-C faces the **back** wall, the reset button (KMR2) and power switch sit beside it, and the cell is a **302030** in front of it (a 302040 would run into the bend).
+  * The plateau only covers the back 76 mm of the controller strip, so the PCB is laid out for it: the nice!nano's USB-C faces the **back** wall, the reset button (KMR2) sits beside it, and the cell is a **302030** in front of it (a 302040 would run into the bend).
   * The two posts beside the USB port are moved outward, so they don't land on the nice!nano's pins.
   * Threads are 2 mm deep under the plateau and 1.1 mm under the rim (M2×2 screws there); the drawing's 3 mm ones don't fit under 5 mm.
-  * DRC reports one courtyard overlap between the slide switch and the nice!nano; the parts themselves clear each other by 0.27 mm.
+  * **No power switch.** The cell is wired straight to the nice!nano; ZMK's deep sleep (after 15 min idle, a key press wakes it) keeps the drain to a few µA. To store it for months, unsolder a battery lead.
+  * The USB-C opening is a stadium around the receptacle (9.7 × 3.9 mm). The receptacle sits 1.5–2 mm behind the outer wall, so the cable's plug overmold has to fit that opening: slim-overmold cables and magnetic-tip adapters work, bulky plugs won't seat.
+  * **Two wall styles** are generated: the default has the drafted walls of the MK5 drawing; `bayleaf-shell-*-chamfer` has straight walls with a 1 mm × 45° chamfer along the top edge ([comparison](docs/img/3d/compare.jpg)). Both use the same bottom plate and PCB.
 * **Radio.** The nice!nano sits under the aluminium roof. BLE range may suffer, which is a known trade-off of full-metal cases. The firmware already uses +8 dBm TX power, and a printed shell avoids the problem.

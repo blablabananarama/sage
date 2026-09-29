@@ -10,8 +10,9 @@ sent through the Bayleaf Case Sketchpad (docs/case-sketchpad-shape.json):
     through soft S-bends 16.5 mm wide (10-90 %), i.e. a separable Gaussian-blurred step
   * the controller bay is closed by the shell itself (0.8 mm roof); USB-C exits the back wall
   * the bottom plate (0.8 mm) screws into 7 posts and clamps the PCB
+  * two wall styles: drafted walls [D] (default) or straight walls with a 45 deg chamfer on the top edge
 
-    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,plate}-{left,right}.{step,stl}
+    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,plate}-{left,right}.{step,stl}
 
 Coordinates ("shell coords"): x to the right, y toward the typist (front), origin at the back-left
 corner of the 137 x 94.4 top outline. CadQuery Y = -y. Right half = mirror image.
@@ -44,6 +45,7 @@ SKIN = 0.8                     # top skin (rim and roof over the controller)
 WALL_IN = 0.8                  # inner cavity inset from the top outline (gives the 27 mm bay [D])
 RABBET_W, PLATE_T = 1.0, 0.8   # [D] bottom-plate rabbet: leaves a 1 mm wall at the base
 WIN_R = 2.0                    # [S] rounded inside corners of the key window
+CHAMFER = 1.0                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
 
 # ---------------------------------------------------------------- stack-up inside
 PCB_OFF = WALL_IN + 0.25       # PCB origin in shell coords (0.25 mm clearance to the cavity wall)
@@ -69,9 +71,8 @@ MIN_TOP_SKIN = 0.5             # material left above a blind thread
 
 # ---------------------------------------------------------------- openings (from the PCB layout)
 USB_X = BAY_CX - 0.3           # nice!nano (0.3 mm toward the divider), USB-C facing the back
-USB_W, USB_Z0, USB_Z1 = 10.0, PLATE_T + 0.05, 4.2
-PWR_Y = PCB_OFF + 15.0         # slide switch on the inner side wall
-PWR_L, PWR_Z1 = 4.4, 3.4
+USB_ZC = PCB_TOP + 0.5         # mid-mount receptacle: centred on the nice!nano's 1 mm board
+USB_W, USB_H = 9.7, 3.9        # obround opening = 8.94 x 3.26 receptacle + ~0.35 all round (z 0.15..4.05)
 RESET_PIN = (PCB_OFF + 110.15, PCB_OFF + 22.0, 1.6)   # paper-clip hole through the roof
 
 
@@ -92,6 +93,12 @@ def cyl(x, y, d, z0, dz):
     return cq.Workplane("XY").workplane(offset=z0).center(x, -y).circle(d / 2).extrude(dz)
 
 
+def usb_opening(y0, depth):
+    """Obround (stadium) USB-C opening around the receptacle, through the back wall from y0 toward the front."""
+    return (cq.Workplane("XZ", origin=(0, -y0, 0)).center(USB_X, USB_ZC)
+            .slot2D(USB_W, USB_H).extrude(depth))
+
+
 def _phi(t):
     return 0.5 * (1 + math.erf(t / math.sqrt(2)))
 
@@ -106,31 +113,64 @@ def thread_depth(x, y):
     return round(min(THREAD_MAX, top_z(x, y) - PCB_TOP - MIN_TOP_SKIN), 1)
 
 
-def height_profile(dz=0.0):
-    """Solid whose top is the shell's top surface (lowered by dz): a loft through y-z sections."""
-    y_bend = [PLATEAU_Y1 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)]
-    ys = [-10.0 + 5 * k for k in range(int((y_bend[0] + 10) // 5))] + y_bend + [TOP_H + 5, TOP_H + 10]
-
+def height_field(fn, xs, ys):
+    """Solid under z = fn(x, y): a ruled loft (along x) through y-z spline sections."""
     def section(x):
         pl = cq.Plane(origin=(x, 0, 0), xDir=(0, 1, 0), normal=(1, 0, 0))
-        pts = [(-y, top_z(x, y) - dz + 1e-5 * i) for i, y in enumerate(ys)]   # tiny tilt: never collinear
+        pts = [(-y, fn(x, y) + 1e-5 * i) for i, y in enumerate(ys)]   # tiny tilt: never collinear
         wp = cq.Workplane(pl).moveTo(-ys[0], -2).lineTo(*pts[0]).spline(pts[1:], includeCurrent=True) \
             .lineTo(-ys[-1], -2).close()
         return wp.wires().val()
-    xs = [-10.0] + [PLATEAU_X0 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)] + [BASE_W + 10]
     return cq.Workplane().add(cq.Solid.makeLoft([section(x) for x in xs], True))
 
 
-def outer_body():
+def height_profile(dz=0.0):
+    """Solid whose top is the shell's top surface (lowered by dz)."""
+    y_bend = [PLATEAU_Y1 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)]
+    ys = [-10.0 + 5 * k for k in range(int((y_bend[0] + 10) // 5))] + y_bend + [TOP_H + 5, TOP_H + 10]
+    xs = [-10.0] + [PLATEAU_X0 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)] + [BASE_W + 10]
+    return height_field(lambda x, y: top_z(x, y) - dz, xs, ys)
+
+
+def outer_body(style="draft"):
+    """Outer walls: "draft" = drafted walls (base 1.19 mm larger per side [D]); "chamfer" = straight walls
+    on the base outline."""
     cx, cy = TOP_W / 2, -TOP_H / 2
+    top_w, top_h, top_r = (TOP_W, TOP_H, R_TOP) if style == "draft" else (BASE_W, BASE_H, R_TOP + DRAFT)
     return cq.Workplane().add(cq.Solid.makeLoft([
         rrect_wire(BASE_W, BASE_H, R_TOP + DRAFT, cx, cy, 0.0),
-        rrect_wire(TOP_W, TOP_H, R_TOP, cx, cy, H_HIGH + 0.01)]))
+        rrect_wire(top_w, top_h, top_r, cx, cy, H_HIGH + 0.01)]))
 
 
-def build_shell(side="left"):
-    outer = outer_body()
+def inward_dist(x, y):
+    """Distance inside the base outline (rounded rectangle), negative outside; shell coords."""
+    x0, y0, x1, y1, r = -DRAFT, -DRAFT, TOP_W + DRAFT, TOP_H + DRAFT, R_TOP + DRAFT
+    cx, cy = min(max(x, x0 + r), x1 - r), min(max(y, y0 + r), y1 - r)
+    if (cx, cy) != (x, y) and not (x0 + r <= x <= x1 - r or y0 + r <= y <= y1 - r):
+        return r - math.hypot(x - cx, y - cy)          # corner quadrant
+    return min(x - x0, x1 - x, y - y0, y1 - y)
+
+
+def chamfer_field():
+    """Solid below z = top_z - CHAMFER + inward distance: intersecting with it cuts a 45 deg chamfer of
+    size CHAMFER along the outer top edge that follows the blended surface (OCC can't chamfer that edge
+    directly). Sections are dense within reach of the walls and in the bends."""
+    def near(lo, hi, step=0.5):
+        return [lo + step * k for k in range(int(round((hi - lo) / step)) + 1)]
+    xb = [PLATEAU_X0 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)]
+    xs = near(-3.0, R_TOP + 3.0) + [x for x in xb if R_TOP + 3.5 < x < TOP_W - R_TOP - 3.5] + \
+        near(TOP_W - R_TOP - 3.0, TOP_W + 3.0)
+    yb = [PLATEAU_Y1 - 4 * SIGMA + k * SIGMA / 2 for k in range(17)]
+    ys = near(-3.0, R_TOP + 3.0) + [y for y in [10.0 + 5 * k for k in range(12)] + yb
+                                     if R_TOP + 3.5 < y < TOP_H - R_TOP - 3.5] + near(TOP_H - R_TOP - 3.0, TOP_H + 3.0)
+    return height_field(lambda x, y: top_z(x, y) - CHAMFER + min(inward_dist(x, y), 3.0), xs, sorted(set(ys)))
+
+
+def build_shell(side="left", style="draft"):
+    outer = outer_body(style)
     body = outer.intersect(height_profile())
+    if style == "chamfer":
+        body = body.intersect(chamfer_field())
 
     cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
     # hollow from below, following the top surface 0.8 mm under it (rim and controller roof)
@@ -150,8 +190,7 @@ def build_shell(side="left"):
         body = body.cut(cyl(x, y, TAP_DRILL, PCB_TOP - 0.1, thread_depth(x, y) + 0.1))
         body = body.cut(cq.Workplane("XY").workplane(offset=PCB_TOP).center(x, -y)
                         .circle(1.2).workplane(offset=0.4).circle(TAP_DRILL / 2).loft())  # 2.4 x 90 deg [D]
-    body = body.cut(prism(USB_X - USB_W / 2, -3, USB_W, 6, USB_Z0, USB_Z1 - USB_Z0, 1.2))  # USB-C, back wall
-    body = body.cut(prism(TOP_W - 3, PWR_Y - PWR_L / 2, 6, PWR_L, -1, PWR_Z1 + 1))       # power switch
+    body = body.cut(usb_opening(-4, 4 + WALL_IN))                                        # USB-C, back wall
     body = body.cut(cyl(RESET_PIN[0], RESET_PIN[1], RESET_PIN[2], 0, H_HIGH + 1))        # reset pin-hole
     if side == "right":
         body = body.mirror("YZ", basePointVector=(TOP_W / 2, 0, 0))
@@ -169,6 +208,7 @@ def build_plate(side="left"):
         plate = plate.cut(cyl(x, y, 4.2, -1, 1.5))        # counterbore 0.5 deep for thin-head M2 screws
     # relief under the mid-mount USB-C receptacle (it hangs ~1.1 mm below the nice!nano)
     plate = plate.cut(prism(USB_X - 5.75, 0.5, 11.5, 9, PLATE_T - 0.4, 1, 0.6))
+    plate = plate.cut(usb_opening(-4, 5))    # the opening's lower curve continues into the plate edge
     if side == "right":
         plate = plate.mirror("YZ", basePointVector=(TOP_W / 2, 0, 0))
     return plate
@@ -180,14 +220,16 @@ def main():
     for x, y, d in BOSSES:
         print(f"post ({x:.2f}, {y:.2f}) dia {d:g}: M2 thread {thread_depth(x, y)} mm deep")
     for side in ("left", "right"):
-        for name, part in (("shell", build_shell(side)), ("plate", build_plate(side))):
-            base = os.path.join(out, f"bayleaf-{name}-{side}")
+        for name, part in ((f"shell-{side}", build_shell(side)),
+                           (f"shell-{side}-chamfer", build_shell(side, "chamfer")),
+                           (f"plate-{side}", build_plate(side))):
+            base = os.path.join(out, f"bayleaf-{name}")
             cq.exporters.export(part, base + ".step")
             cq.exporters.export(part, base + ".stl", tolerance=0.02, angularTolerance=0.1)
             bb = part.val().BoundingBox()
             zmax = max(p.z for p in part.val().tessellate(0.01)[0])   # OCC's box is padded
             vol = part.val().Volume() / 1000
-            print(f"{name}-{side}: {bb.xlen:.1f} x {bb.ylen:.1f} mm footprint, {zmax:.2f} mm tall, "
+            print(f"{name}: {bb.xlen:.1f} x {bb.ylen:.1f} mm footprint, {zmax:.2f} mm tall, "
                   f"{vol:.2f} cm3 = {vol * 2.70:.0f} g (6061)")
 
 

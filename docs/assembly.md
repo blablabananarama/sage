@@ -29,9 +29,9 @@ Do these steps once per half. They're written for the left half; the right half 
 3. Reflow 4–6 switches at a time on the hotplate. With Sn42Bi58, about 170 °C is enough; don't cook the switches. Press each switch gently while the paste is molten so it seats flat.
 4. With a multimeter in continuity mode, check each key: probe the column pin at the nice!nano footprint and the diode's row side, then press the key.
 
-## 3. Reset button and power switch
+## 3. Reset button
 
-Solder SW31 (KMR2 tact switch, beside the controller) and SW32 (slide switch on the inner edge, lever pointing out of the board). Skip this if JLC placed them.
+Solder SW31 (KMR2 tact switch, beside the controller). Skip this if JLC placed it.
 
 ## 4. Flash and test the nice!nano *before* soldering it
 
@@ -48,7 +48,7 @@ Solder SW31 (KMR2 tact switch, beside the controller) and SW32 (slide switch on 
 
 ## 6. Battery
 
-1. Slide the power switch to OFF.
+1. There is no power switch: the nice!nano is live as soon as the cell is soldered, so do this step last, after flashing and testing over USB.
 2. The 3.0 mm 302030 cell drops into the window in the PCB in front of the controller. It rests on the bottom plate.
 3. Solder the cell's red lead to **+** and black to **−** on the BT1 pads. Keep the leads short.
 4. Put Kapton on the cell. It's held by a small piece of thin double-sided tape once the plate is on.
@@ -56,14 +56,14 @@ Solder SW31 (KMR2 tact switch, beside the controller) and SW32 (slide switch on 
 ## 7. Close the case
 
 1. Lay the shell upside down on a soft cloth.
-2. Drop the PCB in, keys down, so the switches go into the key window, USB-C into the window in the back wall, and the power-switch lever into the side slot. The 7 holes in the PCB line up with the shell's posts.
+2. Drop the PCB in, keys down, so the switches go into the key window, and the USB-C into the opening in the back wall. The 7 holes in the PCB line up with the shell's posts.
 3. Put the 0.05 mm Kapton film on the back of the PCB. Stick the battery to the bottom plate where it will meet the cell, then drop the plate into the rabbet.
 4. Screw in the thin-head screws: M2×2 in the four posts under the rim (both key-frame corners and the front pair at the bay; their threads are only 1.1 mm deep), M2×3 in the other three (back of the bay, divider). Snug, not tight: the posts clamp the PCB.
 5. Snap on the 30 keycaps and stick 4 bumpons under each half.
 
 ## 8. Pair
 
-1. Switch both halves ON. They pair with each other automatically; the left half is the BLE "central".
+1. Both halves start as soon as their cells are connected. They pair with each other automatically; the left half is the BLE "central".
 2. On the computer, pair with **Bayleaf**. The reset button is reachable with a paper clip through the pin-hole in the plateau. Lower+Raise gives the Adjust layer, which has the BT profile keys, `BT_CLR`, and `&bootloader` for later firmware updates over USB.
 
 ## Troubleshooting
