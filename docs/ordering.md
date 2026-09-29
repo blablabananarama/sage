@@ -43,6 +43,11 @@ The case follows the original's MK5 drawing for the plan view and the shape sent
   * Material: 6061-T6. Finish: bead blast + anodise. Silver/clear for the original's look.
   * Threads: 7 × M2×0.4, blind, cut up from the bottom into the posts: three 2 mm deep (back of the bay, divider) and four 1.1 mm deep (the posts under the rim). Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
   * Rough cost: shell $70–110, plate $15–30, per half.
+* **SendCutSend (CNC machining):** upload the shell STEP as is. Each file is one solid in mm, the threads aren't modelled, and the M2 holes are at the Ø1.6 mm tap-drill size. The inside corners are ≥ R1.65, which meets their R1/16" minimum.
+  * Material 6061-T6; add anodising if you want it.
+  * In their tapping options, pick M2×0.4 for the seven Ø1.6 holes on the underside. Four are only 1.1 mm deep (the posts under the rim), three are 2 mm deep.
+  * Their page lists 1 × 1 × 1 in as the smallest part size, and the shell is 5 mm (0.2 in) thick. If the quote refuses it, send the same file to JLCCNC, PCBWay or Xometry.
+  * Their laser-cut sheet service can't make the bottom plate as drawn (0.5 mm counterbores and a 0.4 mm pocket in 0.8 mm stock), so order it with the shell as a machined part.
 * **Printed (budget) option:** the same STEP files (with their curved surfaces, so they print well) come out in MJF PA12 or SLS nylon for about $15–25 per half. Use self-tapping M2 screws.
 * **Screws:** 6 × M2×3 and 8 × M2×2 with a thin (≤ 0.5 mm) wafer head, e.g. a laptop-screw assortment.
 

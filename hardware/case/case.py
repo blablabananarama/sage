@@ -45,6 +45,7 @@ SKIN = 0.8                     # top skin (rim and roof over the controller)
 WALL_IN = 0.8                  # inner cavity inset from the top outline (gives the 27 mm bay [D])
 RABBET_W, PLATE_T = 1.0, 0.8   # [D] bottom-plate rabbet: leaves a 1 mm wall at the base
 WIN_R = 2.0                    # [S] rounded inside corners of the key window
+MILL_R = 1.65                  # smallest inside corner radius (SendCutSend: >= 1/16" = 1.59 mm)
 CHAMFER = 0.5                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
 
 # ---------------------------------------------------------------- stack-up inside
@@ -166,6 +167,56 @@ def chamfer_field():
     return height_field(lambda x, y: top_z(x, y) - CHAMFER + min(inward_dist(x, y), 3.0), xs, sorted(set(ys)))
 
 
+def _grow(w, d):
+    """Faces bounded by wire w offset outward by d (inward if d < 0); [] if it vanishes."""
+    area = cq.Face.makeFromWires(w).Area()
+    for sign in (1, -1):
+        try:
+            fs = [cq.Face.makeFromWires(x) for x in w.offset2D(sign * d, "arc")]
+        except Exception:
+            fs = []
+        a = sum(f.Area() for f in fs)
+        if (d > 0 and a > area) or (d < 0 and fs and a < area):
+            return fs
+    return []
+
+
+def _minus(faces, holes):
+    out = []
+    for f in faces:
+        for h in holes:
+            f = f.cut(h)
+        out += [x for x in f.Faces() if x.Area() > 1e-6]
+    return out
+
+
+def opening(faces, r):
+    """Morphological opening (erode, then dilate by r): the part of a planar region a cutter of radius r
+    can reach. Inside corners come out rounded to r, and gaps narrower than 2r are left as material."""
+    eroded = []
+    for f in faces:
+        eroded += _minus(_grow(f.outerWire(), -r), [g for h in f.innerWires() for g in _grow(h, r)])
+    out = []
+    for f in eroded:
+        out += _minus(_grow(f.outerWire(), r), [g for h in f.innerWires() for g in _grow(h, -r)])
+    u = out[0]
+    for f in out[1:]:
+        u = u.fuse(f)
+    return u.clean().Faces()
+
+
+def pocket_outline(with_divider):
+    """Plan-view outline of the underside pocket at one level: the cavity minus the posts (and the divider
+    above its underside), opened for the cutter."""
+    cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
+    s = prism(WALL_IN, WALL_IN, cav_w, cav_h, 0, 1, R_TOP - WALL_IN)
+    for x, y, d in BOSSES:
+        s = s.cut(cyl(x, y, d, -1, 3))
+    if with_divider:
+        s = s.cut(prism(DIV_X, -1, DIV_W, TOP_H + 2, -1, 3))
+    return opening(s.faces("<Z").vals(), MILL_R)
+
+
 def build_shell(side="left", style="draft"):
     outer = outer_body(style)
     body = outer.intersect(height_profile())
@@ -173,17 +224,22 @@ def build_shell(side="left", style="draft"):
         body = body.intersect(chamfer_field())
 
     cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
-    # hollow from below, following the top surface 0.8 mm under it (rim and controller roof)
-    cavity = prism(WALL_IN, WALL_IN, cav_w, cav_h, -1, H_HIGH + 2, R_TOP - WALL_IN).intersect(height_profile(SKIN))
     rabbet = prism(WALL_IN - RABBET_W, WALL_IN - RABBET_W, cav_w + 2 * RABBET_W, cav_h + 2 * RABBET_W,
                    -1, 1 + PLATE_T, R_TOP - WALL_IN + RABBET_W)
-    body = body.cut(cavity).cut(rabbet)
-
-    # divider rib and posts, grown down to the PCB (divider stops above the SMD parts)
-    parts = [prism(DIV_X, WALL_IN, DIV_W, cav_h, RIB_BOTTOM, H_HIGH)]
-    parts += [cyl(x, y, d, PCB_TOP, H_HIGH) for x, y, d in BOSSES]
-    for p in parts:
-        body = body.union(p.intersect(outer).intersect(height_profile()))
+    body = body.cut(rabbet)
+    # Hollow from below, following the top surface 0.8 mm under it (rim and controller roof), in three
+    # layers: the full cavity under the PCB plane; around the posts up to the divider's underside; around
+    # the posts and the divider above it. The posts and the divider are what the pockets leave standing.
+    # Each layer's outline is rounded for a MILL_R cutter, so no inside corner is sharper than the tool.
+    ceiling = height_profile(SKIN)
+    for z0, z1, with_div in ((-1, PCB_TOP, None), (PCB_TOP, RIB_BOTTOM, False), (RIB_BOTTOM, H_HIGH + 1, True)):
+        if with_div is None:
+            layer = prism(WALL_IN, WALL_IN, cav_w, cav_h, z0, z1 - z0, R_TOP - WALL_IN)
+        else:
+            layer = cq.Workplane().add([cq.Solid.extrudeLinear(f.translate(cq.Vector(0, 0, z0)),
+                                                                 cq.Vector(0, 0, z1 - z0))
+                                        for f in pocket_outline(with_div)]).combine()
+        body = body.cut(layer.intersect(ceiling))
 
     body = body.cut(prism(BORDER, BORDER, WIN_W, WIN_H, -1, H_HIGH + 2, WIN_R))         # key window
     for x, y, _ in BOSSES:

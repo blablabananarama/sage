@@ -51,6 +51,7 @@ A finished half weighs about 92 g with the electronics, so about 185 g for the p
 * **Key window:** 103 × 86 mm **[D]**, 4.2 mm from the edge **[D]**, with R2 inside corners **[S]**.
 * **Skin:** 0.8 mm, following the top surface (rim and controller roof).
 * **Divider:** 2 mm **[D]**. It stops 1.2 mm above the PCB so the SMD parts pass underneath.
+* **Inside corners:** every vertical inside corner of the underside pocket (where the posts and the divider meet the walls and each other) is rounded to R1.65 mm, and gaps narrower than 3.3 mm (e.g. behind the two back posts) are left solid. So the pocket can be cut with a Ø3.3 mm end mill; SendCutSend's minimum is R1/16" = 1.59 mm. `MILL_R` in `case.py`.
 * **Controller bay:** 27 mm **[D]**, closed on top by the shell's roof.
 * **Bottom plate seat:** a rabbet 1.0 mm wide × 0.8 mm deep, leaving a 1 mm wall at the base **[D]**.
 * **USB-C:** a stadium-shaped (obround) opening in the **back** wall, 9.7 × 3.9 mm with full-round ends, concentric with the 8.94 × 3.26 mm receptacle (centre z = 2.1 mm, x = 122.4 mm). Its lower curve dips 0.65 mm into the bottom plate's edge, which carries the same cut, so the outline reads as one clean stadium. There is no power-switch slot: the board has no power switch.
