@@ -12,7 +12,7 @@ sent through the Bayleaf Case Sketchpad (docs/case-sketchpad-shape.json):
   * the bottom plate (0.8 mm FR4, made as a copper-free PCB) screws into 7 posts and clamps the PCB
   * two wall styles: drafted walls [D] (default) or straight walls with a 45 deg chamfer on the top edge
 
-    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,shell-*-round,plate}-{left,right}.{step,stl}
+    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,shell-*-round,shell-*-corner,plate}-{left,right}.{step,stl}
 
 Coordinates ("shell coords"): x to the right, y toward the typist (front), origin at the back-left
 corner of the 137 x 94.4 top outline. CadQuery Y = -y. Right half = mirror image.
@@ -48,6 +48,8 @@ WIN_R = 2.0                    # [S] rounded inside corners of the key window
 MILL_R = 1.65                  # smallest inside corner radius (SendCutSend: >= 1/16" = 1.59 mm)
 CHAMFER = 0.5                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
 ROUND_OUT, ROUND_WIN = 1.5, 0.8  # "round" variant: straight walls, outer top edge / key-window edge rounded over
+CORNER_CUT, CORNER_RT, CORNER_RB = 2.5, 1.0, 0.5   # "corner" variant: 45 deg corner cut (legs), and rounds on
+                                                   # the top / bottom edge of each corner face only
 
 # ---------------------------------------------------------------- stack-up inside
 PCB_OFF = WALL_IN + 0.25       # PCB origin in shell coords (0.25 mm clearance to the cavity wall)
@@ -134,6 +136,8 @@ def height_profile(dz=0.0):
 
 
 def outer_body(style="draft"):
+    if style == "corner":   # straight walls, sharp plan corners (cut at 45 deg later)
+        return prism(-DRAFT, -DRAFT, BASE_W, BASE_H, 0, H_HIGH + 0.01)
     """Outer walls: "draft" = drafted walls (base 1.19 mm larger per side [D]); "chamfer" = straight walls
     on the base outline."""
     cx, cy = TOP_W / 2, -TOP_H / 2
@@ -268,6 +272,28 @@ def round_field():
     return height_field(fn, xs, ys)
 
 
+def corner_cutter(x, y, sx, sy):
+    """Material to remove at one outer corner (shell coords x, y; sx, sy = outward direction, +-1): the
+    corner is cut at 45 deg (CORNER_CUT legs), then only the new face's top and bottom edges are rounded.
+    Built on a local block at the corner's (flat) height and subtracted from a box around the corner."""
+    L, n = CORNER_CUT, 5.0          # n: working box, small enough to stay clear of the plateau slope
+    h = top_z(x - sx * L / 2, y - sy * L / 2)
+    keep = cq.Workplane().box(n, n, h, centered=False).edges("|Z").edges(">X and >Y").chamfer(L)
+    face = keep.faces(cq.selectors.DirectionMinMaxSelector(cq.Vector(1, 1, 0), True)).val()
+    keep = keep.newObject([e for e in face.Edges() if abs(e.Center().z - h) < 1e-6]).fillet(CORNER_RT)
+    bottom = [e for e in keep.val().Edges()
+              if abs(e.Center().z) < 1e-6 and abs(e.Center().x + e.Center().y - (2 * n - L)) < 0.5]
+    keep = keep.newObject(bottom).fillet(CORNER_RB)
+    region = cq.Workplane().box(n, n, h + 4, centered=False).translate((0, 0, -2))
+    cut = region.cut(keep).val()
+    # local corner (n, n) points to +x/+y; mirror into the corner's direction (CadQuery Y = -y)
+    if sx < 0:
+        cut = cut.mirror("YZ")
+    if -sy < 0:
+        cut = cut.mirror("XZ")
+    return cq.Workplane().add(cut.translate(cq.Vector(x - sx * n, -y + sy * n, 0)))
+
+
 def build_shell(side="left", style="draft"):
     outer = outer_body(style)
     body = outer.intersect(height_profile())
@@ -275,6 +301,10 @@ def build_shell(side="left", style="draft"):
         body = body.intersect(chamfer_field())
     elif style == "round":
         body = body.intersect(round_field())
+    elif style == "corner":
+        for x, sx in ((-DRAFT, -1), (TOP_W + DRAFT, 1)):
+            for y, sy in ((-DRAFT, -1), (TOP_H + DRAFT, 1)):
+                body = body.cut(corner_cutter(x, y, sx, sy))
 
     cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
     rabbet = prism(WALL_IN - RABBET_W, WALL_IN - RABBET_W, cav_w + 2 * RABBET_W, cav_h + 2 * RABBET_W,
@@ -326,6 +356,7 @@ def main():
         for name, part in ((f"shell-{side}", build_shell(side)),
                            (f"shell-{side}-chamfer", build_shell(side, "chamfer")),
                            (f"shell-{side}-round", build_shell(side, "round")),
+                           (f"shell-{side}-corner", build_shell(side, "corner")),
                            (f"plate-{side}", build_plate(side))):
             base = os.path.join(out, f"bayleaf-{name}")
             cq.exporters.export(part, base + ".step")

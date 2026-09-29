@@ -10,7 +10,7 @@ Everything to buy for one Bayleaf (both halves), with links. Quantities include 
 | ☐ | Key PCB, right | 5 (min.) | [JLCPCB](https://jlcpcb.com/) | `hardware/pcb/fab/right/bayleaf-right-gerbers.zip` · same settings |
 | ☐ | Bottom plate, left (FR4) | 5 (min.) | [JLCPCB](https://jlcpcb.com/) | `hardware/pcb/fab/plate-left/bayleaf-plate-left-gerbers.zip` · 2 layers, **0.8 mm**, black mask, no copper fill |
 | ☐ | Bottom plate, right (FR4) | 5 (min.) | [JLCPCB](https://jlcpcb.com/) | `hardware/pcb/fab/plate-right/bayleaf-plate-right-gerbers.zip` · same settings |
-| ☐ | Top shell, left + right | 1 + 1 | [JLCCNC instant quote](https://jlccnc.com/cnc-machining-quote) or [SendCutSend CNC](https://sendcutsend.com/services/cnc-machining/) | `hardware/case/out/bayleaf-shell-{left,right}.step` (drafted walls), `…-chamfer.step` (straight walls, chamfer) **or** `…-round.step` (straight walls, rounded edges). 6061-T6, bead blast + anodise, 7 × M2×0.4 threads (see [ordering.md](ordering.md)) |
+| ☐ | Top shell, left + right | 1 + 1 | [JLCCNC instant quote](https://jlccnc.com/cnc-machining-quote) or [SendCutSend CNC](https://sendcutsend.com/services/cnc-machining/) | `hardware/case/out/bayleaf-shell-{left,right}.step` (drafted walls), `…-chamfer.step` (straight walls, chamfer), `…-round.step` (straight walls, rounded edges) **or** `…-corner.step` (straight walls, cut corners). 6061-T6, bead blast + anodise, 7 × M2×0.4 threads (see [ordering.md](ordering.md)) |
 
 Optional: a stencil for each key PCB in the same JLCPCB order (frame pads and diodes only).
 

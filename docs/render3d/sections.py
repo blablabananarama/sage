@@ -26,12 +26,12 @@ def panel(tr, x0, x1, W=1100, H=420, z0=-0.4, z1=5.4):
     for t in tr:
         d.polygon([(X(x), Z(z)) for x, z in t], fill='#8f949b')
     return im
-styles = [('', 'drafted walls (MK5)'), ('-chamfer', 'straight + 0.5 mm chamfer'), ('-round', 'straight + rounded edges')]
+styles = [('', 'drafted walls (MK5)'), ('-chamfer', 'straight + 0.5 mm chamfer'), ('-round', 'straight + rounded edges'), ('-corner', 'straight + cut corners')]
 data = {s: tris(s) for s, _ in styles}
 rows = [(-2.0, 9.0, 'section at y = 40: outer wall and key-window edge (left end)'),
         (125.0, 139.0, 'section at y = 40: plateau, divider and outer wall (controller end)')]
 W, H, top = 1100, 420, 60
-out = Image.new('RGB', (3 * W, len(rows) * (H + top)), 'white'); d = ImageDraw.Draw(out)
+out = Image.new('RGB', (len(styles) * W, len(rows) * (H + top)), 'white'); d = ImageDraw.Draw(out)
 for i, (x0, x1, label) in enumerate(rows):
     d.text((16, i * (H + top) + 18), label, fill='#555', font=F(26))
     for j, (s, name) in enumerate(styles):

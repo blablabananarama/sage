@@ -70,14 +70,17 @@ The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit unde
 
 ## Wall variants
 
-`case.py` writes three shells from the same top surface. They fit the same PCB, bottom plate and screws. See the [side-by-side comparison, with cross-sections](img/3d/compare.jpg).
+`case.py` writes four shells from the same top surface. They fit the same PCB, bottom plate and screws. See the [side-by-side comparison, with cross-sections](img/3d/compare.jpg).
 
-| | Default (`bayleaf-shell-*`) | Chamfer (`…-chamfer`) | Round (`…-round`) |
-|---|---|---|---|
-| Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 plan corners | same as chamfer |
-| Outer top edge | sharp | 0.5 mm × 45° chamfer (`CHAMFER`) | quarter-round R1.5 (`ROUND_OUT`) |
-| Key-window edge | sharp | sharp | quarter-round R0.8 (`ROUND_WIN`) |
-| Weight | ≈ 15 g | ≈ 17 g | ≈ 16 g |
+| | Default (`bayleaf-shell-*`) | Chamfer (`…-chamfer`) | Round (`…-round`) | Cut corners (`…-corner`) |
+|---|---|---|---|---|
+| Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 plan corners | same as chamfer | vertical, 139.4 × 96.8, plan corners cut at 45° with 2.5 mm legs (3.5 mm face) (`CORNER_CUT`) |
+| Outer top edge | sharp | 0.5 mm × 45° chamfer (`CHAMFER`) | quarter-round R1.5 (`ROUND_OUT`) | sharp, except R1.0 along the corner faces (`CORNER_RT`) |
+| Outer bottom edge | sharp | sharp | sharp | sharp, except R0.5 along the corner faces (`CORNER_RB`) |
+| Key-window edge | sharp, R2 plan corners | sharp, R2 plan corners | quarter-round R0.8 (`ROUND_WIN`) | sharp, R2 plan corners |
+| Weight | ≈ 15 g | ≈ 17 g | ≈ 16 g | ≈ 17 g |
+
+The cut-corners version is modelled the way you'd machine it. Each corner is cut at 45°, then only the new face's top and bottom edges are filleted; the vertical edges beside it stay sharp (`corner_cutter()`). At 2.5 mm the cut stays clear of the corner screw posts, the PCB and the bottom plate. A larger cut, up to about 6 mm (the nice!nano limits it), would need the corner posts moved and the PCB re-routed.
 
 The chamfer and the rounds are cut as a second height field (`chamfer_field()` / `round_field()`): the top surface, lowered by the edge profile as a function of the distance in from the outline or the key window. So the edge keeps its profile across the S-bends and runs around the plan-view corners. OCC's own chamfer and fillet can't handle the blended top surface. For the round variant, the height field is sampled every 0.15 mm near the edges, which leaves facets of well under 0.1 mm.
 

@@ -23,15 +23,19 @@ node shoot.mjs '{
 "v_backq_draft":"halves=left&styles=&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "v_backq_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "v_backq_round":"halves=left&styles=-round&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
+"v_backq_cut":"halves=left&styles=-corner&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "v_frontq_draft":"halves=left&styles=&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_frontq_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_frontq_round":"halves=left&styles=-round&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
+"v_frontq_cut":"halves=left&styles=-corner&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_corner_draft":"halves=left&styles=&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_corner_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_corner_round":"halves=left&styles=-round&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
+"v_corner_cut":"halves=left&styles=-corner&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_frontcorner_draft":"halves=left&styles=&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
 "v_frontcorner_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
-"v_frontcorner_round":"halves=left&styles=-round&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22"
+"v_frontcorner_round":"halves=left&styles=-round&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
+"v_frontcorner_cut":"halves=left&styles=-corner&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22"
 }'
 ${CQ_PYTHON:-python3} sections.py   # needs cadquery
 python3 -c "
@@ -43,9 +47,9 @@ def F(n):
     try: return ImageFont.truetype('DejaVuSans.ttf', n)
     except OSError: return ImageFont.load_default()
 views = [('backq', 'back'), ('frontq', 'front'), ('corner', 'back corner, USB-C'), ('frontcorner', 'front corner')]
-styles = [('draft', 'drafted walls (MK5)'), ('chamfer', 'straight + 0.5 mm chamfer'), ('round', 'straight + rounded edges')]
+styles = [('draft', 'drafted walls (MK5)'), ('chamfer', 'straight + 0.5 mm chamfer'), ('round', 'straight + rounded edges'), ('cut', 'straight + cut corners')]
 sec = Image.open('sections.png').convert('RGB')
-out = Image.new('RGB', (3300, 90 + 4 * 700 + sec.size[1]), 'white'); d = ImageDraw.Draw(out)
+out = Image.new('RGB', (4400, 90 + 4 * 700 + sec.size[1]), 'white'); d = ImageDraw.Draw(out)
 for j, (st, label) in enumerate(styles):
     d.text((j * 1100 + 40, 28), label, fill='#222', font=F(40))
 for i, (v, label) in enumerate(views):

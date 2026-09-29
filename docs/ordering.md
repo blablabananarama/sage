@@ -44,7 +44,7 @@ The switches (PG1316S) and the nice!nano are not placed by JLC. You solder them 
 
 The case follows the original's MK5 drawing for the plan view and the shape sent through the case sketchpad for the top surface: a 3.2 mm rim around the keys and a 5.0 mm plateau over the controller, joined by soft S-bends, all one piece. See [case-drawing.md](case-drawing.md) for all dimensions and what I changed.
 
-* Upload `hardware/case/out/bayleaf-shell-{left,right}.step` (drafted walls) **or** `bayleaf-shell-{left,right}-chamfer.step` (straight walls, 0.5 mm chamfer on the top edge) **or** `bayleaf-shell-{left,right}-round.step` (straight walls, rounded top edges); see [the comparison](img/3d/compare.jpg) to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each. (The bottom plates are PCBs now, see above.)
+* Upload `hardware/case/out/bayleaf-shell-{left,right}.step` (drafted walls) **or** `bayleaf-shell-{left,right}-chamfer.step` (straight walls, 0.5 mm chamfer on the top edge) **or** `bayleaf-shell-{left,right}-round.step` (straight walls, rounded top edges) **or** `bayleaf-shell-{left,right}-corner.step` (straight walls, 45° cut corners with rounded edges); see [the comparison](img/3d/compare.jpg) to JLCCNC, PCBWay CNC, Xometry or similar. Order qty 1 of each. (The bottom plates are PCBs now, see above.)
   * Material: 6061-T6. Finish: bead blast + anodise. Silver/clear for the original's look.
   * Threads: 7 × M2×0.4, blind, cut up from the bottom into the posts: three 2 mm deep (back of the bay, divider) and four 1.1 mm deep (the posts under the rim). Add them in the shop's thread options or as a note; the STEP only contains the Ø1.6 mm tap drill.
   * Rough cost: $70–110 per half.
