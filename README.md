@@ -42,6 +42,7 @@ hardware/case/case.py             parametric shell (drafted or straight + chamfe
 firmware/                         ZMK shield "bayleaf" + keymap; built by .github/workflows/firmware.yml
 docs/BOM.csv                      full bill of materials with prices
 docs/ordering.md                  exact fab settings (PCB, PCBA, CNC, parts)
+docs/shopping-list.md             every part to buy, with shop links
 docs/assembly.md                  step-by-step build guide
 docs/schematic.md                 circuit / pin map
 docs/case-drawing.md              case dimensions, tapped holes, screws
