@@ -12,7 +12,7 @@ sent through the Bayleaf Case Sketchpad (docs/case-sketchpad-shape.json):
   * the bottom plate (0.8 mm FR4, made as a copper-free PCB) screws into 7 posts and clamps the PCB
   * two wall styles: drafted walls [D] (default) or straight walls with a 45 deg chamfer on the top edge
 
-    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,shell-*-round,shell-*-corner,plate}-{left,right}.{step,stl}
+    /opt/cq/bin/python case.py        # -> out/bayleaf-{shell,shell-*-chamfer,shell-*-round,shell-*-corner,shell-*-corner2,plate}-{left,right}.{step,stl}
 
 Coordinates ("shell coords"): x to the right, y toward the typist (front), origin at the back-left
 corner of the 137 x 94.4 top outline. CadQuery Y = -y. Right half = mirror image.
@@ -136,7 +136,7 @@ def height_profile(dz=0.0):
 
 
 def outer_body(style="draft"):
-    if style == "corner":   # straight walls, sharp plan corners (cut at 45 deg later)
+    if style in ("corner", "corner2"):   # straight walls, sharp plan corners (cut or rounded later)
         return prism(-DRAFT, -DRAFT, BASE_W, BASE_H, 0, H_HIGH + 0.01)
     """Outer walls: "draft" = drafted walls (base 1.19 mm larger per side [D]); "chamfer" = straight walls
     on the base outline."""
@@ -301,10 +301,18 @@ def build_shell(side="left", style="draft"):
         body = body.intersect(chamfer_field())
     elif style == "round":
         body = body.intersect(round_field())
-    elif style == "corner":
+    elif style in ("corner", "corner2"):
+        # "corner": all four corners cut; "corner2": only the back corner by the USB-C and the opposite
+        # front corner, the other two get the usual R4.19 plan radius
         for x, sx in ((-DRAFT, -1), (TOP_W + DRAFT, 1)):
             for y, sy in ((-DRAFT, -1), (TOP_H + DRAFT, 1)):
-                body = body.cut(corner_cutter(x, y, sx, sy))
+                if style == "corner" or (sx, sy) in ((1, -1), (-1, 1)):
+                    body = body.cut(corner_cutter(x, y, sx, sy))
+                else:
+                    r = R_TOP + DRAFT
+                    sq = prism(x - (r if sx > 0 else 0) - (1 if sx < 0 else 0), y - (r if sy > 0 else 0) - (1 if sy < 0 else 0),
+                               r + 1, r + 1, -1, H_HIGH + 2)
+                    body = body.cut(sq.cut(cyl(x - sx * r, y - sy * r, 2 * r, -2, H_HIGH + 4)))
 
     cav_w, cav_h = TOP_W - 2 * WALL_IN, TOP_H - 2 * WALL_IN
     rabbet = prism(WALL_IN - RABBET_W, WALL_IN - RABBET_W, cav_w + 2 * RABBET_W, cav_h + 2 * RABBET_W,
@@ -357,6 +365,7 @@ def main():
                            (f"shell-{side}-chamfer", build_shell(side, "chamfer")),
                            (f"shell-{side}-round", build_shell(side, "round")),
                            (f"shell-{side}-corner", build_shell(side, "corner")),
+                           (f"shell-{side}-corner2", build_shell(side, "corner2")),
                            (f"plate-{side}", build_plate(side))):
             base = os.path.join(out, f"bayleaf-{name}")
             cq.exporters.export(part, base + ".step")

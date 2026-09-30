@@ -26,7 +26,7 @@ def panel(tr, x0, x1, W=1100, H=420, z0=-0.4, z1=5.4):
     for t in tr:
         d.polygon([(X(x), Z(z)) for x, z in t], fill='#8f949b')
     return im
-styles = [('', 'drafted walls (MK5)'), ('-chamfer', 'straight + 0.5 mm chamfer'), ('-round', 'straight + rounded edges'), ('-corner', 'straight + cut corners')]
+styles = [('', 'drafted walls (MK5)'), ('-chamfer', 'straight + 0.5 mm chamfer'), ('-round', 'straight + rounded edges'), ('-corner', 'straight + cut corners'), ('-corner2', 'two cut + two round corners')]
 data = {s: tris(s) for s, _ in styles}
 rows = [(-2.0, 9.0, 'section at y = 40: outer wall and key-window edge (left end)'),
         (125.0, 139.0, 'section at y = 40: plateau, divider and outer wall (controller end)')]

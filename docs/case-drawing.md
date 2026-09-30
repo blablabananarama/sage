@@ -70,7 +70,7 @@ The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit unde
 
 ## Wall variants
 
-`case.py` writes four shells from the same top surface. They fit the same PCB, bottom plate and screws. See the [side-by-side comparison, with cross-sections](img/3d/compare.jpg).
+`case.py` writes five shells from the same top surface. They fit the same PCB, bottom plate and screws. See the [side-by-side comparison, with cross-sections](img/3d/compare.jpg).
 
 | | Default (`bayleaf-shell-*`) | Chamfer (`…-chamfer`) | Round (`…-round`) | Cut corners (`…-corner`) |
 |---|---|---|---|---|
@@ -79,6 +79,8 @@ The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit unde
 | Outer bottom edge | sharp | sharp | sharp | sharp, except R0.5 along the corner faces (`CORNER_RB`) |
 | Key-window edge | sharp, R2 plan corners | sharp, R2 plan corners | quarter-round R0.8 (`ROUND_WIN`) | sharp, R2 plan corners |
 | Weight | ≈ 15 g | ≈ 17 g | ≈ 16 g | ≈ 17 g |
+
+`…-corner2` is the cut-corners version with only two cut corners: the back corner by the USB-C and the diagonally opposite front corner (at the key end). The other two corners keep the straight versions' R4.19 plan radius with sharp edges ([close comparison](img/3d/compare-corners.jpg)).
 
 The cut-corners version is modelled the way you'd machine it. Each corner is cut at 45°, then only the new face's top and bottom edges are filleted; the vertical edges beside it stay sharp (`corner_cutter()`). At 2.5 mm the cut stays clear of the corner screw posts, the PCB and the bottom plate. A larger cut, up to about 6 mm (the nice!nano limits it), would need the corner posts moved and the PCB re-routed.
 

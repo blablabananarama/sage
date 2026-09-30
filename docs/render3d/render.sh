@@ -24,18 +24,32 @@ node shoot.mjs '{
 "v_backq_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "v_backq_round":"halves=left&styles=-round&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "v_backq_cut":"halves=left&styles=-corner&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
+"v_backq_cut2":"halves=left&styles=-corner2&w=1100&h=700&cam=190,120,45&tx=85&ty=-45&tz=2&fov=33",
 "v_frontq_draft":"halves=left&styles=&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_frontq_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_frontq_round":"halves=left&styles=-round&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_frontq_cut":"halves=left&styles=-corner&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
+"v_frontq_cut2":"halves=left&styles=-corner2&w=1100&h=700&cam=200,-200,42&tx=78&ty=-50&tz=2&fov=31",
 "v_corner_draft":"halves=left&styles=&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_corner_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_corner_round":"halves=left&styles=-round&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_corner_cut":"halves=left&styles=-corner&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
+"v_corner_cut2":"halves=left&styles=-corner2&w=1100&h=700&cam=175,40,22&tx=128&ty=-10&tz=2&fov=22",
 "v_frontcorner_draft":"halves=left&styles=&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
 "v_frontcorner_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
 "v_frontcorner_round":"halves=left&styles=-round&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
-"v_frontcorner_cut":"halves=left&styles=-corner&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22"
+"v_frontcorner_cut":"halves=left&styles=-corner&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
+"v_frontcorner_cut2":"halves=left&styles=-corner2&w=1100&h=700&cam=-45,-150,22&tx=6&ty=-88&tz=2&fov=22",
+"v_backleft_draft":"halves=left&styles=&w=1100&h=700&cam=-45,55,22&tx=8&ty=-8&tz=2&fov=22",
+"v_backleft_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=-45,55,22&tx=8&ty=-8&tz=2&fov=22",
+"v_backleft_round":"halves=left&styles=-round&w=1100&h=700&cam=-45,55,22&tx=8&ty=-8&tz=2&fov=22",
+"v_backleft_cut":"halves=left&styles=-corner&w=1100&h=700&cam=-45,55,22&tx=8&ty=-8&tz=2&fov=22",
+"v_backleft_cut2":"halves=left&styles=-corner2&w=1100&h=700&cam=-45,55,22&tx=8&ty=-8&tz=2&fov=22",
+"v_frontright_draft":"halves=left&styles=&w=1100&h=700&cam=185,-150,22&tx=130&ty=-88&tz=2&fov=22",
+"v_frontright_chamfer":"halves=left&styles=-chamfer&w=1100&h=700&cam=185,-150,22&tx=130&ty=-88&tz=2&fov=22",
+"v_frontright_round":"halves=left&styles=-round&w=1100&h=700&cam=185,-150,22&tx=130&ty=-88&tz=2&fov=22",
+"v_frontright_cut":"halves=left&styles=-corner&w=1100&h=700&cam=185,-150,22&tx=130&ty=-88&tz=2&fov=22",
+"v_frontright_cut2":"halves=left&styles=-corner2&w=1100&h=700&cam=185,-150,22&tx=130&ty=-88&tz=2&fov=22"
 }'
 ${CQ_PYTHON:-python3} sections.py   # needs cadquery
 python3 -c "
@@ -46,17 +60,17 @@ for n in ['hero','desk','back','front','closeup','exploded','inside','top','lege
 def F(n):
     try: return ImageFont.truetype('DejaVuSans.ttf', n)
     except OSError: return ImageFont.load_default()
-views = [('backq', 'back'), ('frontq', 'front'), ('corner', 'back corner, USB-C'), ('frontcorner', 'front corner')]
-styles = [('draft', 'drafted walls (MK5)'), ('chamfer', 'straight + 0.5 mm chamfer'), ('round', 'straight + rounded edges'), ('cut', 'straight + cut corners')]
+views = [('backq', 'back'), ('frontq', 'front'), ('corner', 'back corner, USB-C'), ('frontcorner', 'front corner (opposite)'), ('backleft', 'back corner (key end)'), ('frontright', 'front corner (controller end)')]
+styles = [('draft', 'drafted walls (MK5)'), ('chamfer', 'straight + 0.5 mm chamfer'), ('round', 'straight + rounded edges'), ('cut', 'straight + cut corners'), ('cut2', 'two cut + two round corners')]
 sec = Image.open('sections.png').convert('RGB')
-out = Image.new('RGB', (4400, 90 + 4 * 700 + sec.size[1]), 'white'); d = ImageDraw.Draw(out)
+out = Image.new('RGB', (1100 * len(styles), 90 + len(views) * 700 + sec.size[1]), 'white'); d = ImageDraw.Draw(out)
 for j, (st, label) in enumerate(styles):
     d.text((j * 1100 + 40, 28), label, fill='#222', font=F(40))
 for i, (v, label) in enumerate(views):
     for j, (st, _) in enumerate(styles):
         out.paste(Image.open(f'v_{v}_{st}.png').convert('RGB'), (j * 1100, 90 + i * 700))
     d.text((20, 90 + i * 700 + 14), label, fill='#555', font=F(28))
-out.paste(sec, (0, 90 + 4 * 700))
+out.paste(sec, (0, 90 + len(views) * 700))
 out.save('../img/3d/compare.jpg', quality=86, optimize=True)
 "
 rm -f *.png *.stl
