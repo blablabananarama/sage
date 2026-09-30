@@ -16,6 +16,8 @@ This is an open, buildable re-creation of Sebastian Graz's [Bayleaf](https://www
 
 ![case variants side by side: drafted walls, straight + chamfer, straight + rounded edges, straight + cut corners](docs/img/3d/compare.jpg)
 
+**[Interactive case viewer](https://claude.ai/artifact/CuZ9wQ9LTKb2B2hHYhkEA2)**: rotate the five case versions, switch between them and try finishes (source: `docs/viewer/index.html`).
+
 *Renders are generated from the actual STEP files and the routed PCB artwork (`docs/render3d/render.sh`). The case follows the original's MK5 drawing for the plan view and, for the top surface, the shape drawn in the [case sketchpad](https://claude.ai/artifact/11zAxZXfv3bXQXGKN8ovCU) ([data](docs/case-sketchpad-shape.json)): a one-piece silver shell with two flat levels, a 3.2 mm rim around the keys and a 5.0 mm plateau over the controller, joined by soft S-bends, plus a screwed-on black FR4 bottom plate.*
 
 | | Original Bayleaf (published) | This reproduction |
@@ -110,7 +112,7 @@ The PCB script autoroutes with Freerouting and re-runs until nothing is unrouted
   * default: the drafted walls of the MK5 drawing
   * `bayleaf-shell-*-chamfer`: straight walls with a 0.5 mm × 45° chamfer along the top edge
   * `bayleaf-shell-*-round`: straight walls with the top edge rounded over (R1.5) and a softened key-window edge (R0.8)
-  * `bayleaf-shell-*-corner`: straight walls with sharp edges; each outer corner is cut at 45° (2.5 mm legs), and only that corner face gets a R1.0 top and R0.5 bottom round
+  * `bayleaf-shell-*-corner`: straight walls with sharp edges; each outer corner is cut at 45° (2.5 mm legs), and only that corner face gets a R1.5 top and R0.8 bottom round
   * `bayleaf-shell-*-corner2`: the same cut corners only at the back corner by the USB-C and the diagonally opposite front corner; the other two corners keep the R4.2 plan radius ([close comparison](docs/img/3d/compare-corners.jpg))
 * **Radio.** The nice!nano sits under the aluminium roof, so the bottom plate is FR4 without any copper: the 2.4 GHz signal leaves downward and through the key window instead of being boxed in. The LiPo sits right at the antenna end of the nice!nano, which costs some range too. The firmware uses +8 dBm TX power. Test range before relying on it; a printed shell is the fallback.
 * **Reset button** is on the PCB's underside, in a window of the bottom plate (it stands ~1.1 mm proud of the plate, inside the 1.5 mm feet). JLC's economic assembly is top-side only, so it's hand-soldered.

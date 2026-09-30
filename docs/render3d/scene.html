@@ -45,7 +45,7 @@ const ACCENT = new Set(['Esc','Enter']);
 const DARK = new Set(['Tab','Ctrl','Shift','Gui','Alt','Lower','Raise','Bksp','Del','←','↓','↑','→','Space']);
 
 const mat = {
-  alu: new THREE.MeshStandardMaterial({ color: P.alu || '#b4b7bc', metalness: 0.8, roughness: 0.38 }),
+  alu: new THREE.MeshStandardMaterial({ color: P.alu || '#b8bbbf', metalness: 0.65, roughness: 0.55 }),   // bead-blasted, fairly matte
   plate: new THREE.MeshStandardMaterial({ color: '#141518', metalness: 0.05, roughness: 0.55 }),   // FR4, black mask
   cap: new THREE.MeshStandardMaterial({ color: P.legends ? '#dcd9d2' : '#eceae6', roughness: 0.65 }),
   capDark: new THREE.MeshStandardMaterial({ color: '#4a4d52', roughness: 0.62 }),

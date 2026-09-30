@@ -1,0 +1,370 @@
+<title>Bayleaf Case Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed 3D stage with a machined-spec control rail (right on desktop, below on phones). */
+:root {
+  --bg: #e9ebee;           /* stage ground, cool bead-blast grey */
+  --panel: #f7f8f9;
+  --line: #d3d7dc;
+  --fg: #1e2226;
+  --muted: #5f6770;
+  --accent: #2f6fb5;       /* anodised blue, the original's lid colour */
+  --accent-fg: #ffffff;
+  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1e22; --panel: #23272c; --line: #353b42; --fg: #e8ebee; --muted: #9aa3ad;
+    --accent: #6ea3e0; --accent-fg: #0f1720; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1e22; --panel: #23272c; --line: #353b42; --fg: #e8ebee; --muted: #9aa3ad;
+  --accent: #6ea3e0; --accent-fg: #0f1720; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 330px; height: 100%; }
+.stage { position: relative; min-width: 0; min-height: 0; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+.stage-top { position: absolute; left: 16px; right: 16px; top: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; pointer-events: none; }
+.stage-top h1 { font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: 0.01em; margin: 0; text-wrap: balance; }
+.stage-top p { margin: 2px 0 0; color: var(--muted); font-size: 13px; max-width: 46ch; }
+.status { font-family: var(--mono); font-size: 12px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; white-space: nowrap; }
+.hint { position: absolute; left: 16px; bottom: 12px; font-size: 12px; color: var(--muted); pointer-events: none; }
+.rail { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; padding-block: 18px; padding-inline: 18px; display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.group { display: flex; flex-direction: column; gap: 10px; }
+.label { font-family: var(--display); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.variants { display: flex; flex-direction: column; gap: 6px; }
+.variant { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; text-align: left; padding: 9px 11px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+.variant b { font-weight: 600; font-size: 15px; }
+.variant span { grid-column: 1 / -1; color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.variant small { font-family: var(--mono); font-size: 11.5px; color: var(--muted); align-self: center; font-variant-numeric: tabular-nums; }
+.variant[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.variant:hover { border-color: var(--muted); }
+.swatches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.swatch { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 7px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); font: inherit; font-size: 12px; cursor: pointer; text-align: left; min-width: 0; }
+.swatch i { width: 100%; height: 22px; border-radius: 3px; display: block; }
+.swatch[aria-pressed="true"] { border-color: var(--accent); outline: 1px solid var(--accent); }
+.slider { display: grid; grid-template-columns: 78px minmax(0, 1fr) 62px; align-items: center; gap: 8px; font-size: 13px; }
+.slider output, .slider .val { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.slider input[type="range"] { width: 100%; accent-color: var(--accent); }
+.slider input[type="color"] { width: 100%; height: 26px; border: 1px solid var(--line); border-radius: 4px; background: transparent; padding: 0 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--fg); font: inherit; font-size: 13px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.spec { font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; }
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: 56vh auto; height: auto; }
+  .stage { height: 56vh; }
+  .rail { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .stage-top p { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="app">
+  <div class="stage" id="stage">
+    <div class="stage-top">
+      <div>
+        <h1 id="vname">Two cut + two round corners</h1>
+        <p id="vdesc"></p>
+      </div>
+      <div class="status" id="status" role="status">loading…</div>
+    </div>
+    <div class="hint">Drag to rotate · scroll or pinch to zoom · right-drag to pan</div>
+  </div>
+
+  <aside class="rail" aria-label="Viewer controls">
+    <section class="group">
+      <div class="label">Case version</div>
+      <div class="variants" id="variants"></div>
+    </section>
+
+    <section class="group">
+      <div class="label">View</div>
+      <div class="chips" id="views"></div>
+      <div class="chips">
+        <button class="chip" id="spin" aria-pressed="false">Auto-rotate</button>
+        <button class="chip" id="both" aria-pressed="false">Both halves</button>
+        <button class="chip" id="caps" aria-pressed="true">Keycaps</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="label">Finish</div>
+      <div class="swatches" id="swatches"></div>
+      <div class="slider"><label for="rough">Roughness</label><input id="rough" type="range" min="0" max="1" step="0.01"><output id="roughv" for="rough"></output></div>
+      <div class="slider"><label for="metal">Metalness</label><input id="metal" type="range" min="0" max="1" step="0.01"><output id="metalv" for="metal"></output></div>
+      <div class="slider"><label for="col">Colour</label><input id="col" type="color"><span class="val" id="colv"></span></div>
+    </section>
+
+    <section class="group">
+      <div class="label">Shared by all versions</div>
+      <p class="spec">139.4 × 96.8 mm per half · 3.2 mm rim, 5.0 mm plateau<br>CNC 6061-T6 shell · 0.8 mm FR4 bottom plate<br>USB-C in the back wall, stadium opening</p>
+    </section>
+  </aside>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// ---- data: the five shells generated by hardware/case/case.py (left half; the right half is its mirror)
+const VARIANTS = [
+  { id: 'draft', file: 'models/shell-draft.stl.txt', name: 'Drafted walls (MK5)', grams: 15,
+    desc: 'The original drawing: walls drafted 1.19 mm per side, sharp top edge, R4.2 plan corners.' },
+  { id: 'chamfer', file: 'models/shell-chamfer.stl.txt', name: 'Straight + chamfer', grams: 17,
+    desc: 'Vertical walls, 0.5 mm × 45° chamfer along the whole top edge.' },
+  { id: 'round', file: 'models/shell-round.stl.txt', name: 'Straight + rounded edges', grams: 16,
+    desc: 'Vertical walls, top edge rounded over R1.5, key-window edge R0.8.' },
+  { id: 'corner', file: 'models/shell-corner.stl.txt', name: 'Straight + cut corners', grams: 17,
+    desc: 'Sharp straight walls; every corner cut at 45° (2.5 mm legs) with R1.5 top and R0.8 bottom rounds on the cut face only.' },
+  { id: 'corner2', file: 'models/shell-corner2.stl.txt', name: 'Two cut + two round corners', grams: 17,
+    desc: 'Cut corners only at the USB-C corner and the opposite front corner; the other two keep the R4.2 plan radius.' },
+];
+const FINISHES = [
+  { id: 'bead', name: 'Bead-blasted', color: '#b8bbbf', rough: 0.62, metal: 0.62 },
+  { id: 'satin', name: 'Satin', color: '#c2c5c9', rough: 0.4, metal: 0.8 },
+  { id: 'polished', name: 'Polished', color: '#d4d6d9', rough: 0.14, metal: 1.0 },
+  { id: 'grey', name: 'Space grey', color: '#5c6066', rough: 0.58, metal: 0.6 },
+  { id: 'black', name: 'Black', color: '#27292c', rough: 0.55, metal: 0.45 },
+  { id: 'blue', name: 'Blue', color: '#4c6b95', rough: 0.52, metal: 0.62 },
+];
+// world: x right, y = -(shell y) (toward the back is +y), z up; mm
+const TOP_W = 137, TOP_H = 94.4, PCB_OFF = 1.05, PLATE_T = 0.8, TOP = 1.6, GAP = 26;
+const VIEWS = {
+  'Back three-quarter': { cam: [250, 185, 135], t: [68, -47, 2] },
+  'USB-C corner': { cam: [168, 42, 22], t: [127, -8, 2] },
+  'Front corner': { cam: [-42, -148, 24], t: [8, -86, 2] },
+  'Front': { cam: [185, -300, 110], t: [68, -47, 2] },
+  'Top': { cam: [68.5, -47.2, 290], t: [68.5, -47.2, 0] },
+};
+
+// ---- stage
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+stage.prepend(renderer.domElement);
+renderer.domElement.tabIndex = 0;
+renderer.domElement.setAttribute('aria-label', '3D view of the keyboard case');
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.85;
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+sun.position.set(-110, -150, 300); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -200, right: 200, top: 160, bottom: -160, near: 1, far: 800 });
+sun.shadow.bias = -0.0005;
+sun.target.position.set(70, -47, 0);
+scene.add(sun, sun.target);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.ShadowMaterial({ opacity: 0.16 }));
+ground.position.z = -0.02; ground.receiveShadow = true; scene.add(ground);
+
+const camera = new THREE.PerspectiveCamera(30, 1, 1, 4000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 20; controls.maxDistance = 900;
+controls.maxPolarAngle = Math.PI * 0.62;
+controls.autoRotateSpeed = 1.2;
+
+// ---- materials
+const alu = new THREE.MeshStandardMaterial({ color: '#b8bbbf', metalness: 0.62, roughness: 0.62 });
+const fr4 = new THREE.MeshStandardMaterial({ color: '#15161a', metalness: 0.05, roughness: 0.55 });
+const capMat = new THREE.MeshStandardMaterial({ color: '#ebe9e5', roughness: 0.6, metalness: 0 });
+const dark = new THREE.MeshStandardMaterial({ color: '#1d1a2e', roughness: 0.55 });
+const shield = new THREE.MeshStandardMaterial({ color: '#c9ccd0', metalness: 0.9, roughness: 0.3 });
+const black = new THREE.MeshBasicMaterial({ color: '#070707', side: THREE.DoubleSide });
+
+// ---- one half: shell (swappable), plate, PCB, keycaps, controller
+const loader = new STLLoader();
+const cache = new Map();
+async function geometry(file) {
+  // models ship as base64 text (binary STL is not a served file type)
+  if (!cache.has(file)) cache.set(file, fetch(file).then((r) => {
+    if (!r.ok) throw new Error(r.status);
+    return r.text();
+  }).then((b64) => {
+    const bin = atob(b64.trim()), buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return toCreasedNormals(loader.parse(buf.buffer), Math.PI / 7);
+  }));
+  return cache.get(file);
+}
+function makeHalf() {
+  const g = new THREE.Group();
+  const shell = new THREE.Mesh(new THREE.BufferGeometry(), alu);
+  shell.castShadow = shell.receiveShadow = true; g.add(shell);
+  const plate = new THREE.Mesh(new THREE.BufferGeometry(), fr4);
+  plate.castShadow = plate.receiveShadow = true; g.add(plate);
+  const X = (x) => x + PCB_OFF, Y = (y) => -(y + PCB_OFF);
+  // PCB
+  const pcbMat = new THREE.MeshStandardMaterial({ color: '#2a2c2f', roughness: 0.5, metalness: 0.1, alphaTest: 0.5 });
+  new THREE.TextureLoader().load('pcb-left-top.png', (tex) => { tex.colorSpace = THREE.SRGBColorSpace; pcbMat.map = tex; pcbMat.color.set('#ffffff'); pcbMat.needsUpdate = true; });
+  const pcb = new THREE.Mesh(new THREE.PlaneGeometry(134.9, 92.3), pcbMat);
+  pcb.position.set(X(134.9 / 2), Y(92.3 / 2), TOP); pcb.receiveShadow = true; g.add(pcb);
+  // keycaps
+  const caps = new THREE.Group(); caps.name = 'caps';
+  const capGeo = new RoundedBoxGeometry(16.05, 16.25, 1.3, 3, 0.45);
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
+    const m = new THREE.Mesh(capGeo, capMat);
+    m.position.set(X(12.15 + 17 * c), Y(12.15 + 17 * r), 3.75); m.castShadow = true; caps.add(m);
+  }
+  g.add(caps);
+  // nice!nano and its USB-C receptacle (seen through the opening)
+  const nano = new THREE.Mesh(new THREE.BoxGeometry(18, 33.3, 1.0), dark);
+  nano.position.set(X(121.35), Y(17.05), TOP + 0.5); g.add(nano);
+  const sh = new THREE.Shape(), rr = 1.6, hw = 8.94 / 2 - rr;
+  sh.absarc(hw, 0, rr, -Math.PI / 2, Math.PI / 2); sh.absarc(-hw, 0, rr, Math.PI / 2, 3 * Math.PI / 2);
+  const usb = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 7.3, bevelEnabled: false, curveSegments: 20 }), shield);
+  usb.rotation.x = Math.PI / 2; usb.position.set(X(121.35), Y(-0.25), TOP + 0.5); g.add(usb);
+  const mouthShape = new THREE.Shape(), r2 = 1.2, hw2 = 8.25 / 2 - r2;
+  mouthShape.absarc(hw2, 0, r2, -Math.PI / 2, Math.PI / 2); mouthShape.absarc(-hw2, 0, r2, Math.PI / 2, 3 * Math.PI / 2);
+  const mouth = new THREE.Mesh(new THREE.ShapeGeometry(mouthShape, 20), black);
+  mouth.rotation.x = Math.PI / 2; mouth.position.set(X(121.35), Y(-0.25) + 0.01, TOP + 0.5); g.add(mouth);
+  return { g, shell, plate, caps };
+}
+const left = makeHalf();
+const right = makeHalf();
+right.g.scale.x = -1;                      // the right half is the exact mirror image
+right.g.position.x = 2 * TOP_W + GAP;
+scene.add(left.g, right.g);
+
+// ---- state
+let current = 'corner2', finish = 'bead', both = false;
+const status = document.getElementById('status');
+async function showVariant(id) {
+  const v = VARIANTS.find((x) => x.id === id) || VARIANTS[4];
+  current = v.id;
+  document.querySelectorAll('.variant').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === v.id)));
+  document.getElementById('vname').textContent = v.name;
+  document.getElementById('vdesc').textContent = v.desc;
+  status.textContent = 'loading ' + v.name.toLowerCase() + '…';
+  try {
+    const geo = await geometry(v.file);
+    if (current !== v.id) return;
+    left.shell.geometry = geo; right.shell.geometry = geo;
+    status.textContent = `${v.grams} g per half · 6061`;
+  } catch (e) {
+    status.textContent = 'Could not load this model. Reload the page to try again.';
+  }
+}
+function applyFinish(f) {
+  alu.color.set(f.color); alu.roughness = f.rough; alu.metalness = f.metal;
+  document.getElementById('rough').value = f.rough; document.getElementById('metal').value = f.metal;
+  document.getElementById('col').value = f.color;
+  syncOutputs();
+}
+function syncOutputs() {
+  document.getElementById('roughv').textContent = (+document.getElementById('rough').value).toFixed(2);
+  document.getElementById('metalv').textContent = (+document.getElementById('metal').value).toFixed(2);
+  document.getElementById('colv').textContent = document.getElementById('col').value;
+}
+function setView(name) {
+  const v = VIEWS[name];
+  const off = both && name === 'Top' ? [TOP_W + GAP / 2, 0, 160] : [0, 0, 0];
+  camera.position.set(v.cam[0] + off[0], v.cam[1], v.cam[2] + off[2]);
+  controls.target.set(v.t[0] + off[0], v.t[1], v.t[2]);
+  controls.update();
+}
+function frameBoth() {
+  right.g.visible = both;
+  document.getElementById('both').setAttribute('aria-pressed', String(both));
+  if (both) { camera.position.set(TOP_W + GAP / 2 + 60, -330, 220); controls.target.set(TOP_W + GAP / 2, -47, 0); }
+  else setView('Back three-quarter');
+  controls.update();
+}
+
+// ---- UI
+const vbox = document.getElementById('variants');
+for (const v of VARIANTS) {
+  const b = document.createElement('button');
+  b.className = 'variant'; b.dataset.id = v.id; b.id = 'v-' + v.id;
+  b.innerHTML = `<b></b><small></small><span></span>`;
+  b.querySelector('b').textContent = v.name;
+  b.querySelector('small').textContent = v.grams + ' g';
+  b.querySelector('span').textContent = v.desc;
+  b.addEventListener('click', () => { showVariant(v.id); remember(); });
+  vbox.append(b);
+}
+const sbox = document.getElementById('swatches');
+for (const f of FINISHES) {
+  const b = document.createElement('button');
+  b.className = 'swatch'; b.dataset.id = f.id; b.id = 'f-' + f.id;
+  b.innerHTML = '<i></i>'; b.querySelector('i').style.background = f.color;
+  b.append(f.name);
+  b.addEventListener('click', () => { finish = f.id; applyFinish(f); markFinish(); remember(); });
+  sbox.append(b);
+}
+function markFinish() { document.querySelectorAll('.swatch').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === finish))); }
+for (const [id, prop] of [['rough', 'roughness'], ['metal', 'metalness']]) {
+  document.getElementById(id).addEventListener('input', (e) => { alu[prop] = +e.target.value; finish = 'custom'; markFinish(); syncOutputs(); remember(); });
+}
+document.getElementById('col').addEventListener('input', (e) => { alu.color.set(e.target.value); finish = 'custom'; markFinish(); syncOutputs(); remember(); });
+const vw = document.getElementById('views');
+for (const name of Object.keys(VIEWS)) {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = name; b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => setView(name));
+  vw.append(b);
+}
+document.getElementById('spin').addEventListener('click', (e) => {
+  controls.autoRotate = !controls.autoRotate; e.currentTarget.setAttribute('aria-pressed', String(controls.autoRotate));
+});
+document.getElementById('both').addEventListener('click', () => { both = !both; frameBoth(); });
+document.getElementById('caps').addEventListener('click', (e) => {
+  const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+  left.caps.visible = right.caps.visible = on;
+});
+
+// ---- remember the viewer's last choice (per browser only)
+function remember() {
+  try {
+    localStorage.setItem('bayleaf-viewer', JSON.stringify({ current, finish, custom: finish === 'custom'
+      ? { color: '#' + alu.color.getHexString(), rough: alu.roughness, metal: alu.metalness } : null }));
+  } catch (e) { /* storage unavailable: nothing to do */ }
+}
+let saved = null;
+try { saved = JSON.parse(localStorage.getItem('bayleaf-viewer') || 'null'); } catch (e) { saved = null; }
+const hashId = location.hash.slice(1);
+if (VARIANTS.some((v) => v.id === hashId)) current = hashId; else if (saved && saved.current) current = saved.current;
+if (saved && saved.finish === 'custom' && saved.custom) { finish = 'custom'; applyFinish({ ...saved.custom }); }
+else { finish = (saved && FINISHES.some((f) => f.id === saved.finish)) ? saved.finish : 'bead'; applyFinish(FINISHES.find((f) => f.id === finish)); }
+markFinish();
+right.g.visible = false;
+setView('Back three-quarter');
+showVariant(current);
+geometry('models/plate.stl.txt').then((geo) => { left.plate.geometry = geo; right.plate.geometry = geo; }).catch(() => {});
+// warm the cache for the other versions so switching is instant
+setTimeout(() => VARIANTS.forEach((v) => geometry(v.file).catch(() => {})), 1500);
+
+// ---- render loop
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / Math.max(h, 1); camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>

@@ -48,7 +48,7 @@ WIN_R = 2.0                    # [S] rounded inside corners of the key window
 MILL_R = 1.65                  # smallest inside corner radius (SendCutSend: >= 1/16" = 1.59 mm)
 CHAMFER = 0.5                  # "chamfer" variant: straight walls + 45 deg chamfer on the outer top edge
 ROUND_OUT, ROUND_WIN = 1.5, 0.8  # "round" variant: straight walls, outer top edge / key-window edge rounded over
-CORNER_CUT, CORNER_RT, CORNER_RB = 2.5, 1.0, 0.5   # "corner" variant: 45 deg corner cut (legs), and rounds on
+CORNER_CUT, CORNER_RT, CORNER_RB = 2.5, 1.5, 0.8   # "corner" variant: 45 deg corner cut (legs), and rounds on
                                                    # the top / bottom edge of each corner face only
 
 # ---------------------------------------------------------------- stack-up inside

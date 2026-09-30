@@ -75,8 +75,8 @@ The posts come down onto the PCB. The drawing's 3 mm-deep threads don't fit unde
 | | Default (`bayleaf-shell-*`) | Chamfer (`…-chamfer`) | Round (`…-round`) | Cut corners (`…-corner`) |
 |---|---|---|---|---|
 | Outer walls | drafted, 1.19 mm per side **[D]** (137 × 94.4 at the top, 139.4 × 96.8 at the base) | vertical, 139.4 × 96.8 all the way up, R4.19 plan corners | same as chamfer | vertical, 139.4 × 96.8, plan corners cut at 45° with 2.5 mm legs (3.5 mm face) (`CORNER_CUT`) |
-| Outer top edge | sharp | 0.5 mm × 45° chamfer (`CHAMFER`) | quarter-round R1.5 (`ROUND_OUT`) | sharp, except R1.0 along the corner faces (`CORNER_RT`) |
-| Outer bottom edge | sharp | sharp | sharp | sharp, except R0.5 along the corner faces (`CORNER_RB`) |
+| Outer top edge | sharp | 0.5 mm × 45° chamfer (`CHAMFER`) | quarter-round R1.5 (`ROUND_OUT`) | sharp, except R1.5 along the corner faces (`CORNER_RT`) |
+| Outer bottom edge | sharp | sharp | sharp | sharp, except R0.8 along the corner faces (`CORNER_RB`) |
 | Key-window edge | sharp, R2 plan corners | sharp, R2 plan corners | quarter-round R0.8 (`ROUND_WIN`) | sharp, R2 plan corners |
 | Weight | ≈ 15 g | ≈ 17 g | ≈ 16 g | ≈ 17 g |
 
