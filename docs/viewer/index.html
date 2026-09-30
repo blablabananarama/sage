@@ -93,6 +93,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
         <button class="chip" id="spin" aria-pressed="false">Auto-rotate</button>
         <button class="chip" id="both" aria-pressed="false">Both halves</button>
         <button class="chip" id="caps" aria-pressed="true">Keycaps</button>
+        <button class="chip" id="explode" aria-pressed="false">Exploded</button>
       </div>
     </section>
 
@@ -212,38 +213,61 @@ async function geometry(file) {
   }));
   return cache.get(file);
 }
+// exploded view: each layer rises by k * EXPLODE_STEP mm (bottom to top)
+const EXPLODE_STEP = 16;
+const LAYERS = { screws: -1.3, plate: 0, battery: 0.55, pcb: 1, switches: 2, caps: 3.2, shell: 4.6 };
+const swFrame = new THREE.MeshStandardMaterial({ color: '#b9bdc2', metalness: 0.85, roughness: 0.35 });
+const swBody = new THREE.MeshStandardMaterial({ color: '#3a3d42', roughness: 0.6 });
+const batMat = new THREE.MeshStandardMaterial({ color: '#c3c7cc', metalness: 0.6, roughness: 0.45 });
+const screwMat = new THREE.MeshStandardMaterial({ color: '#8d9197', metalness: 0.9, roughness: 0.35 });
 function makeHalf() {
   const g = new THREE.Group();
+  const layer = {};
+  for (const k of Object.keys(LAYERS)) { layer[k] = new THREE.Group(); g.add(layer[k]); }
   const shell = new THREE.Mesh(new THREE.BufferGeometry(), alu);
-  shell.castShadow = shell.receiveShadow = true; g.add(shell);
+  shell.castShadow = shell.receiveShadow = true; layer.shell.add(shell);
   const plate = new THREE.Mesh(new THREE.BufferGeometry(), fr4);
-  plate.castShadow = plate.receiveShadow = true; g.add(plate);
+  plate.castShadow = plate.receiveShadow = true; layer.plate.add(plate);
   const X = (x) => x + PCB_OFF, Y = (y) => -(y + PCB_OFF);
   // PCB
   const pcbMat = new THREE.MeshStandardMaterial({ color: '#2a2c2f', roughness: 0.5, metalness: 0.1, alphaTest: 0.5 });
   new THREE.TextureLoader().load('pcb-left-top.png', (tex) => { tex.colorSpace = THREE.SRGBColorSpace; pcbMat.map = tex; pcbMat.color.set('#ffffff'); pcbMat.needsUpdate = true; });
   const pcb = new THREE.Mesh(new THREE.PlaneGeometry(134.9, 92.3), pcbMat);
-  pcb.position.set(X(134.9 / 2), Y(92.3 / 2), TOP); pcb.receiveShadow = true; g.add(pcb);
-  // keycaps
-  const caps = new THREE.Group(); caps.name = 'caps';
+  pcb.position.set(X(134.9 / 2), Y(92.3 / 2), TOP); pcb.receiveShadow = true; layer.pcb.add(pcb);
+  const pcbUnder = new THREE.Mesh(new THREE.PlaneGeometry(134.9, 92.3), new THREE.MeshStandardMaterial({ color: '#111214', side: THREE.BackSide }));
+  pcbUnder.position.set(X(134.9 / 2), Y(92.3 / 2), TOP - 0.8); layer.pcb.add(pcbUnder);
+  // switches and keycaps
+  const caps = new THREE.Group(); caps.name = 'caps'; layer.caps.add(caps);
   const capGeo = new RoundedBoxGeometry(16.05, 16.25, 1.3, 3, 0.45);
+  const frameGeo = new THREE.BoxGeometry(13.5, 13.0, 0.35), bodyGeo = new THREE.BoxGeometry(11.6, 11.0, 1.0);
   for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
-    const m = new THREE.Mesh(capGeo, capMat);
-    m.position.set(X(12.15 + 17 * c), Y(12.15 + 17 * r), 3.75); m.castShadow = true; caps.add(m);
+    const x = X(12.15 + 17 * c), y = Y(12.15 + 17 * r);
+    const m = new THREE.Mesh(capGeo, capMat); m.position.set(x, y, 3.75); m.castShadow = true; caps.add(m);
+    const f = new THREE.Mesh(frameGeo, swFrame); f.position.set(x, y, TOP + 0.18); layer.switches.add(f);
+    const sb = new THREE.Mesh(bodyGeo, swBody); sb.position.set(x, y, TOP + 0.85); sb.castShadow = true; layer.switches.add(sb);
   }
-  g.add(caps);
   // nice!nano and its USB-C receptacle (seen through the opening)
   const nano = new THREE.Mesh(new THREE.BoxGeometry(18, 33.3, 1.0), dark);
-  nano.position.set(X(121.35), Y(17.05), TOP + 0.5); g.add(nano);
+  nano.position.set(X(121.35), Y(17.05), TOP + 0.5); layer.pcb.add(nano);
   const sh = new THREE.Shape(), rr = 1.6, hw = 8.94 / 2 - rr;
   sh.absarc(hw, 0, rr, -Math.PI / 2, Math.PI / 2); sh.absarc(-hw, 0, rr, Math.PI / 2, 3 * Math.PI / 2);
   const usb = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 7.3, bevelEnabled: false, curveSegments: 20 }), shield);
-  usb.rotation.x = Math.PI / 2; usb.position.set(X(121.35), Y(-0.25), TOP + 0.5); g.add(usb);
+  usb.rotation.x = Math.PI / 2; usb.position.set(X(121.35), Y(-0.25), TOP + 0.5); layer.pcb.add(usb);
   const mouthShape = new THREE.Shape(), r2 = 1.2, hw2 = 8.25 / 2 - r2;
   mouthShape.absarc(hw2, 0, r2, -Math.PI / 2, Math.PI / 2); mouthShape.absarc(-hw2, 0, r2, Math.PI / 2, 3 * Math.PI / 2);
   const mouth = new THREE.Mesh(new THREE.ShapeGeometry(mouthShape, 20), black);
-  mouth.rotation.x = Math.PI / 2; mouth.position.set(X(121.35), Y(-0.25) + 0.01, TOP + 0.5); g.add(mouth);
-  return { g, shell, plate, caps };
+  mouth.rotation.x = Math.PI / 2; mouth.position.set(X(121.35), Y(-0.25) + 0.01, TOP + 0.5); layer.pcb.add(mouth);
+  // LiPo 302030 in the PCB window, resting on the bottom plate
+  const bat = new THREE.Mesh(new RoundedBoxGeometry(20, 30, 3.0, 2, 0.8), batMat);
+  bat.position.set(X(121.65), Y(50.4), PLATE_T + 1.5); bat.castShadow = true; layer.battery.add(bat);
+  // M2 wafer-head screws from below (only seen when exploded)
+  const screwGeo = new THREE.CylinderGeometry(1, 1, 3, 16), headGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.65, 24);
+  for (const [px, py] of [[1.85, 2.45], [1.85, 89.85], [110.15, 2.45], [132.9, 2.45], [108.45, 46.15], [112.63, 89.85], [130.67, 89.85]]) {
+    const s1 = new THREE.Mesh(screwGeo, screwMat); s1.rotation.x = Math.PI / 2; s1.position.set(X(px), Y(py), 1.5); layer.screws.add(s1);
+    const h1 = new THREE.Mesh(headGeo, screwMat); h1.rotation.x = Math.PI / 2; h1.position.set(X(px), Y(py), -0.33); layer.screws.add(h1);
+  }
+  layer.screws.visible = false;
+  return { g, shell, plate, caps, layer };
 }
 const left = makeHalf();
 const right = makeHalf();
@@ -366,5 +390,31 @@ function resize() {
   renderer.setSize(w, h, false); camera.aspect = w / Math.max(h, 1); camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(stage); resize();
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+let explodeT = 0, explodeTarget = 0, lastFrame = performance.now();
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('explode').addEventListener('click', (e) => {
+  explodeTarget = explodeTarget ? 0 : 1;
+  e.currentTarget.setAttribute('aria-pressed', String(!!explodeTarget));
+  if (explodeTarget && !both) {                       // a lower front view shows the layers best
+    camera.position.set(265, -335, 205); controls.target.set(68, -47, 34); controls.update();
+  }
+  if (reduceMotion) { explodeT = explodeTarget; applyExplode(); }
+});
+function applyExplode() {
+  const k = explodeT * explodeT * (3 - 2 * explodeT);          // smoothstep
+  for (const h of [left, right]) {
+    for (const [name, lvl] of Object.entries(LAYERS)) h.layer[name].position.z = lvl * EXPLODE_STEP * k;
+    h.layer.screws.visible = explodeT > 0.02;
+  }
+}
+renderer.setAnimationLoop((now) => {
+  const dt = Math.min((now - lastFrame) / 700, 1);             // full travel in 0.7 s
+  lastFrame = now;
+  if (explodeT !== explodeTarget) {
+    explodeT += Math.sign(explodeTarget - explodeT) * dt;
+    if ((explodeTarget === 1 && explodeT >= 1) || (explodeTarget === 0 && explodeT <= 0)) explodeT = explodeTarget;
+    applyExplode();
+  }
+  controls.update(); renderer.render(scene, camera);
+});
 </script>
